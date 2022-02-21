@@ -12,7 +12,7 @@ _RAM_C008_ db
 _RAM_C009_ db
 _RAM_C00A_ db
 _RAM_C00B_ db
-_RAM_C00C_ db
+input_RAM_C00C_ db
 .ende
 
 .enum $C00F export
@@ -24,7 +24,7 @@ _RAM_C011_ db
 .enum $C014 export
 _RAM_C014_ db
 _RAM_C015_ db
-_RAM_C016_ dw
+timer_RAM_C016_ dw
 _RAM_C018_ db
 .ende
 
@@ -328,8 +328,8 @@ _RAM_DD0B_ db
 .ende
 
 .enum $DD0E export
-_RAM_DD0E_ db
-_RAM_DD0F_ db
+audioFadeOutTimer_RAM_DD0E_ db
+audio_RAM_DD0F_ db
 _RAM_DD10_ db
 .ende
 
