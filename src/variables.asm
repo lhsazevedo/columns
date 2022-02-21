@@ -77,8 +77,7 @@ _RAM_C0F8_ db
 .ende
 
 .enum $C100 export
-_RAM_C100_ db
-_RAM_C101_ db
+v_entities db
 .ende
 
 .enum $C10E export

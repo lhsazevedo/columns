@@ -114,8 +114,9 @@ init:
 	ld (hl), $00
 	ldir
 
-	ld hl, _RAM_C100_
-	ld de, _RAM_C100_ + 1
+	; TODO: Clear entities?
+	ld hl, v_entities
+	ld de, v_entities + 1
 	ld bc, $0EFF
 	ld (hl), $00
 	ldir
@@ -798,7 +799,7 @@ _LABEL_49C_:
 	ret
 
 updateEntities_LABEL_508_:
-	ld ix, _RAM_C100_
+	ld ix, v_entities
 
 	ld b, $10
 	-:
@@ -940,8 +941,8 @@ _LABEL_5C6_:
 
 _LABEL_5EA_:
 	; TODO: Clear RAM from $C100 to $C300 (512 bytes)
-	ld hl, _RAM_C100_
-	ld de, _RAM_C101_
+	ld hl, v_entities
+	ld de, v_entities + 1
 	ld (hl), $00
 	call ldi128
 	call ldi128
@@ -1510,8 +1511,8 @@ _DATA_15A3_:
 .db $FF $07 $0B $0A $07 $09 $0C $FF $FF $09 $0A $0B $0C $07 $08 $FF
 
 _LABEL_15E3_:
-	ld hl, _RAM_C100_
-	ld de, _RAM_C101_
+	ld hl, v_entities
+	ld de, v_entities + 1
 	ld (hl), $00
 	call ldi128
 	call ldi128
@@ -1638,7 +1639,7 @@ _LABEL_1649_:
 	ld (_RAM_D000_), a
 	ld (_RAM_C00A_), a
 	ld hl, $2FC2
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
@@ -1835,7 +1836,7 @@ _LABEL_1864_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B1B_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	jp waitInterrupt_LABEL_18D_
 
 _LABEL_189C_:
@@ -1912,7 +1913,7 @@ _LABEL_1996_:
 	ld bc, $092C
 	call _LABEL_65D_
 	ld hl, _LABEL_2FF9_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld a, $07
 	ld (_RAM_C01C_), a
 	jp waitInterrupt_LABEL_181_
@@ -1974,7 +1975,7 @@ _LABEL_1A17_:
 	ld de, _RAM_CF56_
 	call _LABEL_289D_
 	ld hl, _LABEL_3030_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 _LABEL_1A45_:
 	call waitInterrupt_LABEL_181_
 	ld de, $3AC0
@@ -2004,7 +2005,7 @@ _LABEL_1A5F_:
 	ld de, $CF56
 	call _LABEL_289D_
 	ld hl, _LABEL_3030_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	jp _LABEL_1A45_
 
 ; 3rd entry of Jump Table from 1A0B (indexed by _RAM_C005_)
@@ -2028,7 +2029,7 @@ _LABEL_1A90_:
 	ld de, $CF5C
 	call _LABEL_289D_
 	ld hl, _LABEL_312A_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_31F5_
 	ld (_RAM_C120_), hl
 	jp _LABEL_1A45_
@@ -2054,7 +2055,7 @@ _LABEL_1ACF_:
 	ld de, $CF5C
 	call _LABEL_289D_
 	ld hl, _LABEL_312A_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_31F5_
 	ld (_RAM_C120_), hl
 	jp _LABEL_1A45_
@@ -2077,7 +2078,7 @@ _LABEL_1B0E_:
 	ld de, $CF56
 	call _LABEL_289D_
 	ld hl, _LABEL_3030_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	jp _LABEL_1A45_
 
 ; 6th entry of Jump Table from 1A0B (indexed by _RAM_C005_)
@@ -2098,12 +2099,12 @@ _LABEL_1B3F_:
 	ld de, $CF56
 	call _LABEL_289D_
 	ld hl, _LABEL_3030_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	jp _LABEL_1A45_
 
 ; 10th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
 updateOptionsMenuState:
-	ld hl, (_RAM_C100_)
+	ld hl, (v_entities)
 	ld de, (_RAM_C120_)
 	ld a, l
 	or h
@@ -2161,7 +2162,7 @@ _LABEL_1BA6_:
 	ld de, $3800
 	call _LABEL_6D0_
 	ld hl, _LABEL_3599_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, $32F7
 	ld (_RAM_C2A0_), hl
 	ld hl, $332D
@@ -2221,7 +2222,7 @@ _LABEL_1C4D_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3AC4_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld a, $18
 	ld (_RAM_C01C_), a
 	jp waitInterrupt_LABEL_18D_
@@ -2278,7 +2279,7 @@ _LABEL_1CBD_:
 	ld de, $3800
 	call _LABEL_6D0_
 	ld hl, _LABEL_3599_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, $404D
 	ld (_RAM_C140_), hl
 	ld a, $02
@@ -2342,7 +2343,7 @@ _LABEL_1D64_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3AC4_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld a, $19
 	ld (_RAM_C01C_), a
 	jp waitInterrupt_LABEL_18D_
@@ -2364,7 +2365,7 @@ _LABEL_1DB8_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B1B_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld a, $19
 	ld (_RAM_C01C_), a
 	jp waitInterrupt_LABEL_18D_
@@ -2470,7 +2471,7 @@ _LABEL_1E79_:
 	call _LABEL_6D0_
 	call _LABEL_15F7_
 	ld hl, _LABEL_3599_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_3B74_
 	ld (_RAM_C120_), hl
 	ld a, $02
@@ -2532,7 +2533,7 @@ _LABEL_1F15_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B41_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_4007_
 	ld (_RAM_C120_), hl
 	ld a, $1A
@@ -2553,7 +2554,7 @@ _LABEL_1F15_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_4023_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_3B5E_
 	ld (_RAM_C120_), hl
 	ld a, $1A
@@ -2584,7 +2585,7 @@ _LABEL_1FA9_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B33_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_4015_
 	ld (_RAM_C120_), hl
 	ld a, $1A
@@ -2605,7 +2606,7 @@ _LABEL_1FA9_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B4F_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_4032_
 	ld (_RAM_C120_), hl
 	ld a, $1A
@@ -2647,7 +2648,7 @@ _LABEL_2027_:
 	ld a, $0F
 	call _LABEL_746_
 	ld hl, _LABEL_3599_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_3B74_
 	ld (_RAM_C120_), hl
 	ld a, $86
@@ -2703,7 +2704,7 @@ _LABEL_209C_:
 	call _LABEL_6D0_
 	call _LABEL_15F7_
 	ld hl, _LABEL_3599_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_3B74_
 	ld (_RAM_C120_), hl
 	ld hl, $40CF
@@ -2787,7 +2788,7 @@ _LABEL_2168_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B41_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_4007_
 	ld (_RAM_C120_), hl
 	ld a, $1B
@@ -2816,7 +2817,7 @@ _LABEL_21D5_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B33_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_4015_
 	ld (_RAM_C120_), hl
 	ld a, $1B
@@ -2846,7 +2847,7 @@ _LABEL_221C_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B4F_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_4032_
 	ld (_RAM_C120_), hl
 	ld a, $1B
@@ -2858,7 +2859,7 @@ _LABEL_221C_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B5E_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_4023_
 	ld (_RAM_C120_), hl
 	ld a, $1B
@@ -2876,7 +2877,7 @@ _LABEL_221C_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B65_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_4039_
 	ld (_RAM_C120_), hl
 	ld a, $1B
@@ -2920,7 +2921,7 @@ _LABEL_22AE_:
 	ld a, $0F
 	call _LABEL_746_
 	ld hl, _LABEL_3599_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, _LABEL_3B74_
 	ld (_RAM_C120_), hl
 	ld hl, $40CF
@@ -2982,7 +2983,7 @@ _LABEL_2346_:
 	ld de, $3800
 	call _LABEL_6D0_
 	ld hl, _LABEL_3599_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, $32F7
 	ld (_RAM_C2A0_), hl
 	ld hl, $332D
@@ -3046,7 +3047,7 @@ _LABEL_23F9_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3AC4_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld a, $1C
 	ld (_RAM_C01C_), a
 	jp waitInterrupt_LABEL_18D_
@@ -3101,7 +3102,7 @@ _LABEL_2469_:
 	ld de, $3800
 	call _LABEL_6D0_
 	ld hl, _LABEL_3599_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld hl, $404D
 	ld (_RAM_C140_), hl
 	ld a, $02
@@ -3171,7 +3172,7 @@ _LABEL_2510_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3AC4_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld a, $1D
 	ld (_RAM_C01C_), a
 	jp waitInterrupt_LABEL_18D_
@@ -3193,7 +3194,7 @@ _LABEL_256A_:
 	ld (_RAM_C140_), hl
 	ld (_RAM_C160_), hl
 	ld hl, _LABEL_3B1B_
-	ld (_RAM_C100_), hl
+	ld (v_entities), hl
 	ld a, $1D
 	ld (_RAM_C01C_), a
 	jp waitInterrupt_LABEL_18D_
@@ -3223,7 +3224,7 @@ _LABEL_25A1_:
 _LABEL_25CC_:
 	xor a
 	ld (_RAM_C3C0_), a
-	ld ix, _RAM_C100_
+	ld ix, v_entities
 	ld de, $0020
 	ld b, $10
 -:
