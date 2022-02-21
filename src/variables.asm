@@ -35,10 +35,9 @@ _RAM_C01D_ db
 .ende
 
 .enum $C021 export
-_RAM_C021_ db
-_RAM_C022_ db
-_RAM_C023_ db
-_RAM_C024_ db
+palette_RAM_C021_ db
+palette_RAM_C022_ db
+v_filteredPalette db
 .ende
 
 .enum $C026 export
@@ -54,7 +53,7 @@ _RAM_C02F_ db
 .ende
 
 .enum $C063 export
-_RAM_C063_ dsb $10
+v_palette dsb $10
 _RAM_C073_ dsb $10
 .ende
 
