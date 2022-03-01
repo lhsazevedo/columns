@@ -1336,7 +1336,7 @@ _LABEL_746_:
     ret
 
 ; Data from 76B to 1012 (2216 bytes)
-.incbin "columns_DATA_76B_.inc"
+.incbin "data/columns_DATA_76B_.inc"
 
 outi128:
 .repeat 64
@@ -5929,7 +5929,7 @@ _LABEL_4D0F_:
     inc bc
     jp z, $E84D ; Possibly invalid
 ; Data from 4D13 to 6394 (5762 bytes)
-.incbin "columns_DATA_4D13_.inc"
+.incbin "data/columns_DATA_4D13_.inc"
 
 ; 1st entry of Pointer Table from 4CE8 (indexed by _RAM_DD03_)
 ; Data from 6395 to 6398 (4 bytes)
@@ -6302,7 +6302,7 @@ _DATA_8846_:
 
 ; Data from 8899 to 9A14 (4476 bytes)
 _DATA_8899_:
-.incbin "columns_DATA_8899_.inc"
+.incbin "data/columns_DATA_8899_.inc"
 
 ; Data from 9A15 to 9A26 (18 bytes)
 palette_DATA_9A15_:
@@ -6622,7 +6622,7 @@ _DATA_C463_:
 
 ; Data from C612 to CD22 (1809 bytes)
 _DATA_C612_:
-.incbin "columns_DATA_C612_.inc"
+.incbin "data/columns_DATA_C612_.inc"
 
 ; Data from CD23 to CD34 (18 bytes)
 palette_DATA_CD23_:
@@ -6678,7 +6678,7 @@ _DATA_CD35_:
 
 ; Data from CFED to D6DF (1779 bytes)
 _DATA_CFED_:
-.incbin "columns_DATA_CFED_.inc"
+.incbin "data/columns_DATA_CFED_.inc"
 
 ; Data from D6E0 to D6F1 (18 bytes)
 palette_DATA_D6E0_:
@@ -6733,7 +6733,7 @@ _DATA_D6F2_:
 
 ; Data from D9A0 to E29B (2300 bytes)
 _DATA_D9A0_:
-.incbin "columns_DATA_D9A0_.inc"
+.incbin "data/columns_DATA_D9A0_.inc"
 
 ; Data from E29C to E2AD (18 bytes)
 palette_DATA_E29C_:
@@ -6777,7 +6777,7 @@ _DATA_E2AE_:
 
 ; Data from E4AD to E8CD (1057 bytes)
 _DATA_E4AD_:
-.incbin "columns_DATA_E4AD_.inc"
+.incbin "data/columns_DATA_E4AD_.inc"
 
 ; Data from E8CE to E8DF (18 bytes)
 palette_DATA_E8CE_:
@@ -6823,7 +6823,7 @@ _DATA_E8E0_:
 
 ; Data from EAF9 to FFFF (5383 bytes)
 _DATA_EAF9_:
-.incbin "columns_DATA_EAF9_.inc"
+.incbin "data/columns_DATA_EAF9_.inc"
 
 .BANK 4
 .ORG $0000
