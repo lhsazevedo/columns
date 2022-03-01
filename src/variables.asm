@@ -11,32 +11,32 @@ _RAM_C007_ db
 _RAM_C008_ db
 _RAM_C009_ db
 _RAM_C00A_ db
-_RAM_C00B_ db
-input_RAM_C00C_ db
+var.input.player1.data db
+var.input.player1.debounced db
 .ende
 
 .enum $C00F export
-_RAM_C00F_ db
-_RAM_C010_ db
-_RAM_C011_ db
+var.input.player1.timer db
+var.input.player2.data db
+var.input.player2.debounced db
 .ende
 
 .enum $C014 export
-_RAM_C014_ db
-_RAM_C015_ db
-timer_RAM_C016_ dw
+var.input.player2.timer db
+var.interrupt.handlerIndex db
+var.timer dw
 _RAM_C018_ db
 .ende
 
 .enum $C01A export
 _RAM_C01A_ dw
-_RAM_C01C_ db
-_RAM_C01D_ db
+var.state db
+var.previousState db
 .ende
 
 .enum $C021 export
-palette_RAM_C021_ db
-palette_RAM_C022_ db
+var.pallete.shouldUpdate db
+var.palette._RAM_C022_ db
 v_filteredPalette db
 .ende
 
@@ -58,12 +58,12 @@ _RAM_C073_ dsb $10
 .ende
 
 .enum $C0A3 export
-_RAM_C0A3_ db
+var.fade.state db
 .ende
 
 .enum $C0A5 export
-_RAM_C0A5_ db
-_RAM_C0A6_ db
+var.fade.progress db
+var.fade.timer db
 .ende
 
 .enum $C0A8 export
@@ -315,7 +315,7 @@ _RAM_DD01_ db
 _RAM_DD02_ db
 _RAM_DD03_ db
 _RAM_DD04_ db
-_RAM_DD05_ db
+var.audio.request db
 .ende
 
 .enum $DD07 export

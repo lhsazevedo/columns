@@ -21,6 +21,7 @@ BANKS 6
 .EMPTYFILL $FF
 
 .INCLUDE "constants/sms.asm"
+.INCLUDE "constants/audio.asm"
 .INCLUDE "variables.asm"
 
 .BANK 0 SLOT 0
@@ -72,7 +73,7 @@ handleInterruptEntrypoint:
 .ORG $66
 handlePauseInterruptEntrypoint:
 	push af
-	ld a, (_RAM_C01D_)
+	ld a, (var.previousState)
 	cp $10
 	jr c, +
 	cp $16
@@ -165,14 +166,16 @@ init:
 	ld (_RAM_C6B0_), a
 
 ; TODO: Reset?
-_LABEL_EB_:
+reset:
 	di
 
 	ld sp, $DFF0
 
+	; Reset some values
+	; TODO
 	xor a
-	ld (_RAM_C01D_), a
-	ld (_RAM_C01C_), a
+	ld (var.previousState), a
+	ld (var.state), a
 	ld (_RAM_C005_), a
 	ld (_RAM_C002_), a
 	ld (_RAM_C006_), a
@@ -180,29 +183,28 @@ _LABEL_EB_:
 	ld (_RAM_C008_), a
 	ld (_RAM_C009_), a
 
-	; TODO
+	; Init Vdp Registers
 	in a, (Port_VDPStatus)
 	ld b, $16
 	ld c, Port_VDPAddress
-	ld hl, _DATA_145_
+	ld hl, initialVdpRegisters
 	otir
 
 	; TODO
 	rst $30	; _LABEL_30_
 
-	; Clear RAM from $23 to $62
 	call clearFilteredPalette
 
-	; Clear VRAM and more RAM
+	; TODO: Clear VRAM and more RAM
 	call _LABEL_5C6_
 
-	; TODO
+	; Unnecessary reset
 	ld a, $00
-	ld (_RAM_C01D_), a
-	ld (_RAM_C01C_), a
+	ld (var.previousState), a
+	ld (var.state), a
 
 	ei
-	jp _LABEL_15B_
+	jp mainLoop
 
 io_LABEL_126_:
 	ld a, $F5
@@ -229,28 +231,51 @@ io_LABEL_126_:
 .db $C9
 
 ; Data from 145 to 15A (22 bytes)
-_DATA_145_:
-.db $06 $80 $A0 $81 $FF $82 $FF $83 $FF $84 $FF $85 $FF $86 $00 $87
-.db $00 $88 $00 $89 $00 $8A
+initialVdpRegisters:
+.db $06
+.db $80
+.db $A0
+.db $81
+.db $FF
+.db $82
+.db $FF
+.db $83
+.db $FF
+.db $84
+.db $FF
+.db $85
+.db $FF
+.db $86
+.db $00
+.db $87
+.db $00
+.db $88
+.db $00
+.db $89
+.db $00
+.db $8A
 
-_LABEL_15B_:
-	; TODO: Input?
-	call _LABEL_457_
+mainLoop:
+	call input.update
+	call fade.update
 
-	; TODO: Something every $FF calls
-	call _LABEL_55B_
-	ld hl, _LABEL_15B_	; Overriding return address
+	; Loop by overriding return address
+	ld hl, mainLoop
 	push hl
-	ld hl, _RAM_C01C_
-	ld a, (_RAM_C01D_)
+
+	; Update var.previousState on state change
+	ld hl, var.state
+	ld a, (var.previousState)
 	xor (hl)
 	and $7F
 	ld a, (hl)
-	jr z, +
-		ld (_RAM_C01D_), a
-	+:
+	jr z, @endif
+		ld (var.previousState), a
+	@endif:
+
 	ld hl, updatersPointers
-_LABEL_177_:
+
+jumpToAthPointer:
 	ld e, a
 	ld d, $00
 	add hl, de
@@ -263,43 +288,50 @@ _LABEL_177_:
 
 waitInterrupt_LABEL_181_:
 	ld a, $01
-	ld (_RAM_C015_), a
+	ld (var.interrupt.handlerIndex), a
 -:
-	ld a, (_RAM_C015_)
+	ld a, (var.interrupt.handlerIndex)
 	or a
 	jr nz, -
 	ret
 
 waitInterrupt_LABEL_18D_:
 	ld a, $02
-	ld (_RAM_C015_), a
+	ld (var.interrupt.handlerIndex), a
 -:
-	ld a, (_RAM_C015_)
+	ld a, (var.interrupt.handlerIndex)
 	or a
 	jr nz, -
 	ret
 
 waitInterrupt_LABEL_199_:
 	ld a, $03
-	ld (_RAM_C015_), a
+	ld (var.interrupt.handlerIndex), a
 -:
-	ld a, (_RAM_C015_)
+	ld a, (var.interrupt.handlerIndex)
 	or a
 	jr nz, -
 	ret
 
-; Data from 1A5 to 1B0 (12 bytes)
-.db $3E $04 $32 $15 $C0 $3A $15 $C0 $B7 $20 $FA $C9
+; Unused?
+waitInterrupt_LABEL_1A5_:
+	ld a, $04
+	ld (var.interrupt.handlerIndex), a
+-:
+	ld a, (var.interrupt.handlerIndex)
+	or a
+	jr nz, -
+	ret
 
-tickTimerC016_LABEL_1B1_:
-	ld hl, (timer_RAM_C016_)
+tickTimer:
+	ld hl, (var.timer)
 	dec hl
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, l
 	or h
 	ret
 
-; Jump Table from 1BB to 1F6 (30 entries, indexed by _RAM_C01C_)
+; Jump Table from 1BB to 1F6 (30 entries, indexed by var.state)
 updatersPointers:
 .dw _LABEL_1641_
 .dw _LABEL_1641_
@@ -317,7 +349,7 @@ updatersPointers:
 .dw _LABEL_209C_
 .dw _LABEL_2346_
 .dw _LABEL_2469_
-.dw _LABEL_1C4D_
+.dw updateGameplayState
 .dw _LABEL_1D64_
 .dw _LABEL_1F15_
 .dw _LABEL_2168_
@@ -347,16 +379,21 @@ handleInterrupt:
 	push hl
 	push ix
 	push iy
+
 	call _LABEL_2DB0_
-	ld a, (_RAM_C015_)
-	ld hl, _DATA_216_
-	jp _LABEL_177_
 
-; Jump Table from 216 to 21F (5 entries, indexed by _RAM_C015_)
-_DATA_216_:
-.dw _LABEL_220_ _LABEL_241_ _LABEL_282_ _LABEL_2FE_ _LABEL_241_
+	ld a, (var.interrupt.handlerIndex)
+	ld hl, interruptHandlersPointers
+	jp jumpToAthPointer
 
-; 1st entry of Jump Table from 216 (indexed by _RAM_C015_)
+interruptHandlersPointers:
+.dw _LABEL_220_
+.dw _LABEL_241_
+.dw _LABEL_282_
+.dw _LABEL_2FE_
+.dw _LABEL_241_
+
+; 1st entry of Jump Table from 216 (indexed by var.interrupt.handlerIndex)
 _LABEL_220_:
 	ld hl, +	; Overriding return address
 	push hl
@@ -382,7 +419,7 @@ _LABEL_220_:
 	ei
 	ret
 
-; 2nd entry of Jump Table from 216 (indexed by _RAM_C015_)
+; 2nd entry of Jump Table from 216 (indexed by var.interrupt.handlerIndex)
 _LABEL_241_:
 	call _LABEL_41D_
 	call _LABEL_42C_
@@ -390,14 +427,14 @@ _LABEL_241_:
 	ld b, $00
 -:
 	djnz -
-	ld a, (palette_RAM_C021_)
+	ld a, (var.pallete.shouldUpdate)
 	and $01
 	call nz, writePalette
 	xor a
-	ld (palette_RAM_C021_), a
-	ld (palette_RAM_C022_), a
+	ld (var.pallete.shouldUpdate), a
+	ld (var.palette._RAM_C022_), a
 	xor a
-	ld (_RAM_C015_), a
+	ld (var.interrupt.handlerIndex), a
 _LABEL_261_:
 	ld hl, +	; Overriding return address
 	push hl
@@ -423,7 +460,7 @@ _LABEL_261_:
 	ei
 	ret
 
-; 3rd entry of Jump Table from 216 (indexed by _RAM_C015_)
+; 3rd entry of Jump Table from 216 (indexed by var.interrupt.handlerIndex)
 _LABEL_282_:
 	call _LABEL_41D_
 	call _LABEL_42C_
@@ -457,15 +494,15 @@ _LABEL_282_:
 	add hl, de
 	djnz -
 --:
-	ld a, (palette_RAM_C021_)
+	ld a, (var.pallete.shouldUpdate)
 	and $01
 	call nz, writePalette
 	call _LABEL_2B86_
 	xor a
-	ld (palette_RAM_C021_), a
-	ld (palette_RAM_C022_), a
+	ld (var.pallete.shouldUpdate), a
+	ld (var.palette._RAM_C022_), a
 	xor a
-	ld (_RAM_C015_), a
+	ld (var.interrupt.handlerIndex), a
 	jp _LABEL_261_
 
 _LABEL_2D6_:
@@ -493,7 +530,7 @@ _LABEL_2D6_:
 _DATA_2F8_:
 .db $00 $00 $00 $00 $00 $00
 
-; 4th entry of Jump Table from 216 (indexed by _RAM_C015_)
+; 4th entry of Jump Table from 216 (indexed by var.interrupt.handlerIndex)
 _LABEL_2FE_:
 	call _LABEL_41D_
 	call _LABEL_42C_
@@ -551,7 +588,7 @@ _LABEL_2FE_:
 	add hl, de
 	djnz -
 +:
-	ld a, (palette_RAM_C021_)
+	ld a, (var.pallete.shouldUpdate)
 	and $01
 	call nz, writePalette
 	ld hl, (_RAM_C6A6_)
@@ -606,10 +643,10 @@ _LABEL_2FE_:
 _LABEL_3B6_:
 	call _LABEL_2B86_
 	xor a
-	ld (palette_RAM_C021_), a
-	ld (palette_RAM_C022_), a
+	ld (var.pallete.shouldUpdate), a
+	ld (var.palette._RAM_C022_), a
 	xor a
-	ld (_RAM_C015_), a
+	ld (var.interrupt.handlerIndex), a
 	jp _LABEL_261_
 
 ; Data from 3C7 to 3CC (6 bytes)
@@ -637,7 +674,7 @@ _LABEL_3CD_:
 	exx
 	add hl, de
 	djnz -
-	ld a, (palette_RAM_C021_)
+	ld a, (var.pallete.shouldUpdate)
 	and $01
 	call nz, writePalette
 	ld c, Port_VDPData
@@ -671,7 +708,7 @@ _LABEL_41D_:
 	xor c
 	and c
 	ret z
-	jp _LABEL_EB_
+	jp reset
 
 _LABEL_42C_:
 	ld a, (_RAM_C018_)
@@ -702,85 +739,92 @@ _LABEL_438_:
 	call outi128
 	ret
 
-_LABEL_457_:
-	ld a, (_RAM_C01D_)
-	cp $10
-	jr c, _LABEL_49C_
-	cp $16
-	jr nc, _LABEL_49C_
-	ld a, (_RAM_C00B_)
+input.update:
+	ld a, (var.previousState)
+	cp $10 ; < gameplay
+	jr c, @_LABEL_49C_
+
+	cp $16 ; >= ?
+	jr nc, @_LABEL_49C_
+
+	; TODO
+	ld a, (var.input.player1.data)
 	and $0C
 	ld a, $08
 	jr z, +
-	ld a, (_RAM_C00F_)
+	ld a, (var.input.player1.timer)
 	dec a
 	jr nz, +
-	ld a, (_RAM_C00B_)
+	ld a, (var.input.player1.data)
 	and $F3
-	ld (_RAM_C00B_), a
+	ld (var.input.player1.data), a
 	ld a, $01
 +:
-	ld (_RAM_C00F_), a
-	ld a, (_RAM_C010_)
+	ld (var.input.player1.timer), a
+	ld a, (var.input.player2.data)
 	and $0C
 	ld a, $08
 	jr z, +
-	ld a, (_RAM_C014_)
+	ld a, (var.input.player2.timer)
 	dec a
 	jr nz, +
-	ld a, (_RAM_C010_)
+	ld a, (var.input.player2.data)
 	and $F3
-	ld (_RAM_C010_), a
+	ld (var.input.player2.data), a
 	ld a, $01
 +:
-	ld (_RAM_C014_), a
+	ld (var.input.player2.timer), a
+
 	jr ++
 
-_LABEL_49C_:
-	ld a, (_RAM_C00B_)
+@_LABEL_49C_:
+	ld a, (var.input.player1.data)
 	and $0F
 	ld a, $10
 	jr z, +
-	ld a, (_RAM_C00F_)
+	ld a, (var.input.player1.timer)
 	dec a
 	jr nz, +
-	ld a, (_RAM_C00B_)
+	ld a, (var.input.player1.data)
 	and $F0
-	ld (_RAM_C00B_), a
+	ld (var.input.player1.data), a
 	ld a, $0A
 +:
-	ld (_RAM_C00F_), a
-	ld a, (_RAM_C010_)
+	ld (var.input.player1.timer), a
+	ld a, (var.input.player2.data)
 	and $0F
 	ld a, $10
 	jr z, +
-	ld a, (_RAM_C014_)
+	ld a, (var.input.player2.timer)
 	dec a
 	jr nz, +
-	ld a, (_RAM_C010_)
+	ld a, (var.input.player2.data)
 	and $F0
-	ld (_RAM_C010_), a
+	ld (var.input.player2.data), a
 	ld a, $0A
 +:
-	ld (_RAM_C014_), a
+	ld (var.input.player2.timer), a
+
 ++:
-	ld a, (_RAM_C00B_)
+	ld a, (var.input.player1.data)
 	cpl
 	ld d, a
-	call ++
-	ld (_RAM_C00B_), a
+	call @getDataB
+	ld (var.input.player1.data), a
 	and d
-	ld (input_RAM_C00C_), a
-	ld a, (_RAM_C010_)
+	ld (var.input.player1.debounced), a
+
+	ld a, (var.input.player2.data)
 	cpl
 	ld d, a
-	call +
-	ld (_RAM_C010_), a
+	call @getDataA
+	ld (var.input.player2.data), a
 	and d
-	ld (_RAM_C011_), a
+	ld (var.input.player2.debounced), a
+
 	ret
 
-+:
+@getDataA:
 	in a, (Port_IOPort1)
 	ld c, a
 	in a, (Port_IOPort2)
@@ -792,7 +836,7 @@ _LABEL_49C_:
 	and $3F
 	ret
 
-++:
+@getDataB:
 	in a, (Port_IOPort1)
 	cpl
 	and $3F
@@ -824,100 +868,129 @@ updateEntities_LABEL_508_:
 _LABEL_526_:
 	call _LABEL_68F_
 	ld a, $01
-	ld (_RAM_C0A3_), a
+	ld (var.fade.state), a
+	
+	; Clear filtered pallete
 	ld hl, v_filteredPalette
 	ld de, v_filteredPalette + 1
 	ld (hl), $00
 	call ldi31
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 0, (hl)
 	ld a, $04
-	ld (_RAM_C0A6_), a
+	ld (var.fade.timer), a
 	ret
 
 _LABEL_544_:
 	ld a, $02
-	ld (_RAM_C0A3_), a
+	ld (var.fade.state), a
 	ld hl, v_filteredPalette
 	ld de, v_palette
 	ld bc, $0020
 	call ldi32
 	ld a, $04
-	ld (_RAM_C0A6_), a
+	ld (var.fade.timer), a
 	ret
 
-_LABEL_55B_:
-	ld hl, _RAM_C0A6_
+fade.update:
+	; Fade effect is updated every 4th
+	; frame, we use a timer to handle this.
+	ld hl, var.fade.timer
 	dec (hl)
 	ret nz
+
+	; Update frame reached, reset timer
 	ld a, $04
-	ld (_RAM_C0A6_), a
-	ld a, (_RAM_C0A3_)
+	ld (var.fade.timer), a
+
+	; If state isn't set, do nothing
+	ld a, (var.fade.state)
 	or a
 	ret z
-	call +
-	ld hl, palette_RAM_C021_
+
+	call @doUpdate
+
+	; Now we request a palette update
+	ld hl, var.pallete.shouldUpdate
 	set 0, (hl)
-	ld hl, _RAM_C0A5_
+
+	; Increment progress and return if fading hasn't ended yet
+	ld hl, var.fade.progress
 	inc (hl)
 	ld a, (hl)
 	cp $04
 	ret nz
+
+	; If we reach here, the fade in our fade out
+	; transition is over and we can reset our variables.
 	xor a
-	ld (_RAM_C0A5_), a
-	ld (_RAM_C0A3_), a
+	ld (var.fade.progress), a
+	ld (var.fade.state), a
 	ret
 
-+:
-	ld a, (_RAM_C0A3_)
+@doUpdate:
+	ld a, (var.fade.state)
 	dec a
-	jr nz, +
-	ld a, (_RAM_C0A5_)
-	ld d, a
-	ld a, $03
-	sub d
-	jr ++
 
-+:
-	ld a, (_RAM_C0A5_)
-++:
+	; If fade in
+	jr nz, @else
+		ld a, (var.fade.progress)
+		ld d, a
+		ld a, $03
+		sub d
+		jr @endif
+	@else:
+		ld a, (var.fade.progress)
+	@endif:
+
 	ld c, a
 	ld de, v_palette
 	ld hl, v_filteredPalette
+
+	; Number of colors
 	ld b, $20
--:
+
+@colorLoop:
 	push bc
+
+	; Fade red component
 	ld a, (de)
-	and $03
+	and 0b00000011
 	sub c
-	jr nc, +
-	xor a
-+:
+	jr nc, @endif2
+		xor a
+	@endif2:
 	ld (hl), a
+
+	; Fade green component
 	rlc c
 	rlc c
 	ld a, (de)
-	and $0C
+	and 0b00001100
 	sub c
-	jr nc, +
-	xor a
-+:
+	jr nc, @endif3
+		xor a
+	@endif3:
 	or (hl)
 	ld (hl), a
+
+	; Fade blue component
 	rlc c
 	rlc c
 	ld a, (de)
-	and $30
+	and 0b00110000
 	sub c
-	jr nc, +
-	xor a
-+:
+	jr nc, @endif4
+		xor a
+	@endif4:
 	or (hl)
 	ld (hl), a
+
 	inc hl
 	inc de
 	pop bc
-	djnz -
+	djnz @colorLoop
+
 	ret
 
 _LABEL_5C6_:
@@ -1068,7 +1141,7 @@ clearFilteredPalette:
 	ld de, v_filteredPalette + 1
 	ld (hl), $00
 	call ldi63
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 0, (hl)
 	ret
 
@@ -1290,7 +1363,7 @@ _LABEL_12A9_:
 	ret
 
 _LABEL_12C8_:
-	ld a, (_RAM_C0A3_)
+	ld a, (var.fade.state)
 	or a
 	ret z
 	pop hl
@@ -1571,13 +1644,13 @@ _LABEL_15F7_:
 	ex af, af'
 	ret
 
-; 1st entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 1st entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1641_:
 	ld a, $02
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
-; 3rd entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 3rd entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1649_:
 	call _LABEL_12C8_
 	call _LABEL_15E3_
@@ -1638,38 +1711,41 @@ _LABEL_1649_:
 	xor a
 	ld (_RAM_D000_), a
 	ld (_RAM_C00A_), a
-	ld hl, $2FC2
+
+	; Spawn arrow
+	ld hl, initArrow
 	ld (v_entities), hl
+
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
+
+	; Request main menu song
 	ld a, $81
 	ld (_RAM_DD04_), a
+
 	ld hl, $0258
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $03
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
-; 4th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 4th entry of Jump Table from 1BB (indexed by var.state)
 updateMainMenuState:
-	ld hl, (timer_RAM_C016_)
+	ld hl, (var.timer)
 	ld a, l
 	or h
 	jr z, @timerEnded
 
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and JOY_FIREA | JOY_FIREB
 	jr nz, @actionPressed
 
-	; TODO: Related to menu entries
 	call updateEntities_LABEL_508_
-
-	; TODO: Related do menu arrow
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	
 	; TODO: Tick and check timer
-	call tickTimerC016_LABEL_1B1_
+	call tickTimer
 	jp nz, waitInterrupt_LABEL_181_
 
 	; Audio fade out
@@ -1685,7 +1761,7 @@ updateMainMenuState:
 
 	call _LABEL_544_
 	ld a, $04
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
 @actionPressed:
@@ -1696,14 +1772,14 @@ updateMainMenuState:
 	ld a, (hl)
 	ld (_RAM_C005_), a
 	ld a, $06
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
 ; Data from 1759 to 175B (3 bytes)
 _DATA_1759_:
 .db $00 $04 $02
 
-; 5th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 5th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_175C_:
 	call _LABEL_12C8_
 	ld a, (_RAM_C007_)
@@ -1724,9 +1800,9 @@ _LABEL_175C_:
 	ld (_RAM_C699_), a
 	ld (_RAM_C6A5_), a
 	ld a, $02
-	ld (palette_RAM_C021_), a
+	ld (var.pallete.shouldUpdate), a
 	ld hl, $03C0
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $01
 	ld (_RAM_C006_), a
 	ld hl, _DATA_194E_
@@ -1734,7 +1810,7 @@ _LABEL_175C_:
 	xor a
 	ld (_RAM_C6CE_), a
 	ld a, $05
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
 _LABEL_17AD_:
@@ -1754,9 +1830,9 @@ _LABEL_17AD_:
 	ld (_RAM_C699_), a
 	ld (_RAM_C6A5_), a
 	ld a, $02
-	ld (palette_RAM_C021_), a
+	ld (var.pallete.shouldUpdate), a
 	ld hl, $0708
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $04
 	ld (_RAM_C006_), a
 	ld hl, _DATA_1966_
@@ -1764,16 +1840,16 @@ _LABEL_17AD_:
 	xor a
 	ld (_RAM_C6CE_), a
 	ld a, $05
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 6th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 6th entry of Jump Table from 1BB (indexed by var.state)
 updateDemoState:
 	in a, (Port_IOPort1)
 	cpl
 	and $30
 	jr nz, _LABEL_1845_
-	call tickTimerC016_LABEL_1B1_
+	call tickTimer
 	jp z, +
 	ld a, (_RAM_C009_)
 	or a
@@ -1785,7 +1861,7 @@ updateDemoState:
 	call _LABEL_2E54_
 	call _LABEL_2EF0_
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	call _LABEL_2DFE_
 	jp waitInterrupt_LABEL_18D_
 
@@ -1800,7 +1876,7 @@ updateDemoState:
 	inc (hl)
 	call _LABEL_544_
 	ld a, $00
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
 _LABEL_1845_:
@@ -1814,7 +1890,7 @@ _LABEL_1845_:
 	inc (hl)
 	call _LABEL_544_
 	ld a, $02
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
 _LABEL_1864_:
@@ -1846,9 +1922,9 @@ _LABEL_189C_:
 	dec a
 	ld (_RAM_C6CE_), a
 	ld a, (_RAM_C6CF_)
-	ld (_RAM_C00B_), a
+	ld (var.input.player1.data), a
 	xor a
-	ld (input_RAM_C00C_), a
+	ld (var.input.player1.debounced), a
 	ret
 
 +:
@@ -1863,9 +1939,9 @@ _LABEL_189C_:
 	ld (_RAM_C6CF_), a
 	inc hl
 	ld (_RAM_C6D0_), hl
-	ld (_RAM_C00B_), a
+	ld (var.input.player1.data), a
 	and c
-	ld (input_RAM_C00C_), a
+	ld (var.input.player1.debounced), a
 	ret
 
 ; Data from 18CE to 1915 (72 bytes)
@@ -1894,7 +1970,7 @@ _DATA_1966_:
 .db $03 $20 $20 $00 $03 $08 $20 $00 $30 $02 $A0 $00 $03 $08 $20 $00
 .db $03 $20 $20 $00 $30 $02 $F0 $00 $F0 $00 $F0 $00 $F0 $00 $F0 $00
 
-; 7th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 7th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1996_:
 	call _LABEL_5EA_
 	call _LABEL_12FD_
@@ -1915,16 +1991,16 @@ _LABEL_1996_:
 	ld hl, _LABEL_2FF9_
 	ld (v_entities), hl
 	ld a, $07
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
-; 8th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 8th entry of Jump Table from 1BB (indexed by var.state)
 updateModeMenuState:
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $30
 	jr nz, +
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_181_
 
 +:
@@ -1935,10 +2011,10 @@ updateModeMenuState:
 	add a, d
 	ld (_RAM_C005_), a
 	ld a, $08
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
-; 9th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 9th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_19F6_:
 	call _LABEL_5EA_
 	call _LABEL_12FD_
@@ -1984,7 +2060,7 @@ _LABEL_1A45_:
 	call _LABEL_65D_
 	call updateEntities_LABEL_508_
 	ld a, $09
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
 ; 2nd entry of Jump Table from 1A0B (indexed by _RAM_C005_)
@@ -2102,7 +2178,7 @@ _LABEL_1B3F_:
 	ld (v_entities), hl
 	jp _LABEL_1A45_
 
-; 10th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 10th entry of Jump Table from 1BB (indexed by var.state)
 updateOptionsMenuState:
 	ld hl, (v_entities)
 	ld de, (_RAM_C120_)
@@ -2112,7 +2188,7 @@ updateOptionsMenuState:
 	or d
 	jr z, +
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_181_
 
 +:
@@ -2123,13 +2199,13 @@ updateOptionsMenuState:
 	call _LABEL_544_
 	ld a, (_RAM_C005_)
 	add a, $0A
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
 ; Data from 1B9E to 1BA5 (8 bytes)
 .db $E8 $00 $ED $00 $E8 $00 $F3 $00
 
-; 11th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 11th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1BA6_:
 	call _LABEL_12C8_
 	call _LABEL_12D1_
@@ -2185,15 +2261,15 @@ _LABEL_1BA6_:
 	ld a, $83
 	ld (_RAM_DD04_), a
 	ld a, $0E
-	ld (palette_RAM_C021_), a
+	ld (var.pallete.shouldUpdate), a
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $10
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 17th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
-_LABEL_1C4D_:
+; 17th entry of Jump Table from 1BB (indexed by var.state)
+updateGameplayState:
 	ld a, (_RAM_C008_)
 	or a
 	jr nz, ++
@@ -2203,7 +2279,7 @@ _LABEL_1C4D_:
 	call _LABEL_2E54_
 +:
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_18D_
 
 ++:
@@ -2224,10 +2300,10 @@ _LABEL_1C4D_:
 	ld hl, _LABEL_3AC4_
 	ld (v_entities), hl
 	ld a, $18
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 25th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 25th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1C98_:
 	xor a
 	ld (_RAM_C002_), a
@@ -2236,7 +2312,7 @@ _LABEL_1C98_:
 	jr nz, +
 	call _LABEL_2E54_
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_18D_
 
 +:
@@ -2244,10 +2320,10 @@ _LABEL_1C98_:
 	ld (_RAM_C008_), a
 	call _LABEL_544_
 	ld a, $00
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 12th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 12th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1CBD_:
 	call _LABEL_12C8_
 	call _LABEL_12D1_
@@ -2304,14 +2380,14 @@ _LABEL_1CBD_:
 	ld (_RAM_C6C4_), a
 	ld (_RAM_C6C5_), a
 	ld a, $12
-	ld (palette_RAM_C021_), a
+	ld (var.pallete.shouldUpdate), a
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $11
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 18th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 18th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1D64_:
 	ld a, (_RAM_C008_)
 	or a
@@ -2321,7 +2397,7 @@ _LABEL_1D64_:
 	jr nz, _LABEL_1DB8_
 	call _LABEL_2EF0_
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	call _LABEL_2DFE_
 	jp waitInterrupt_LABEL_18D_
 
@@ -2345,7 +2421,7 @@ _LABEL_1D64_:
 	ld hl, _LABEL_3AC4_
 	ld (v_entities), hl
 	ld a, $19
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
 _LABEL_1DB8_:
@@ -2367,10 +2443,10 @@ _LABEL_1DB8_:
 	ld hl, _LABEL_3B1B_
 	ld (v_entities), hl
 	ld a, $19
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 26th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 26th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1DEF_:
 	xor a
 	ld (_RAM_C002_), a
@@ -2383,7 +2459,7 @@ _LABEL_1DEF_:
 	call _LABEL_2EF0_
 +:
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	call _LABEL_2DFE_
 	jp waitInterrupt_LABEL_18D_
 
@@ -2393,10 +2469,10 @@ _LABEL_1DEF_:
 	ld (_RAM_C009_), a
 	call _LABEL_544_
 	ld a, $00
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 23rd entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 23rd entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1E20_:
 	call _LABEL_12C8_
 	call _LABEL_12D1_
@@ -2415,29 +2491,29 @@ _LABEL_1E20_:
 	ld (_RAM_C018_), a
 	ei
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $17
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
-; 24th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 24th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1E59_:
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $30
 	jr nz, +
-	call tickTimerC016_LABEL_1B1_
+	call tickTimer
 	jp nz, waitInterrupt_LABEL_181_
 +:
 	call _LABEL_544_
 	ld a, $00
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
 ; Data from 1E71 to 1E78 (8 bytes)
 _DATA_1E71_:
 .db $EE $00 $F5 $00 $E4 $00 $F1 $00
 
-; 13th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 13th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1E79_:
 	call _LABEL_12C8_
 	call _LABEL_12D1_
@@ -2490,14 +2566,14 @@ _LABEL_1E79_:
 	ld a, $86
 	ld (_RAM_DD04_), a
 	ld a, $03
-	ld (palette_RAM_C022_), a
+	ld (var.palette._RAM_C022_), a
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $12
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
-; 19th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 19th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1F15_:
 	ld a, (_RAM_C008_)
 	or a
@@ -2506,7 +2582,7 @@ _LABEL_1F15_:
 	or a
 	jp nz, _LABEL_1FA9_
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_199_
 
 +:
@@ -2537,7 +2613,7 @@ _LABEL_1F15_:
 	ld hl, _LABEL_4007_
 	ld (_RAM_C120_), hl
 	ld a, $1A
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 +:
@@ -2558,7 +2634,7 @@ _LABEL_1F15_:
 	ld hl, _LABEL_3B5E_
 	ld (_RAM_C120_), hl
 	ld a, $1A
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 _LABEL_1FA9_:
@@ -2589,7 +2665,7 @@ _LABEL_1FA9_:
 	ld hl, _LABEL_4015_
 	ld (_RAM_C120_), hl
 	ld a, $1A
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 +:
@@ -2610,10 +2686,10 @@ _LABEL_1FA9_:
 	ld hl, _LABEL_4032_
 	ld (_RAM_C120_), hl
 	ld a, $1A
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
-; 27th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 27th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_2027_:
 	xor a
 	ld (_RAM_C002_), a
@@ -2621,7 +2697,7 @@ _LABEL_2027_:
 	or a
 	jr nz, +
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_199_
 
 +:
@@ -2654,20 +2730,20 @@ _LABEL_2027_:
 	ld a, $86
 	ld (_RAM_DD04_), a
 	ld a, $03
-	ld (palette_RAM_C022_), a
+	ld (var.palette._RAM_C022_), a
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $12
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 _LABEL_2091_:
 	call _LABEL_544_
 	ld a, $00
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
-; 14th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 14th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_209C_:
 	call _LABEL_12C8_
 	call _LABEL_12D1_
@@ -2736,16 +2812,16 @@ _LABEL_209C_:
 	add a, $03
 	ld (_RAM_C6C5_), a
 	ld a, $20
-	ld (palette_RAM_C021_), a
+	ld (var.pallete.shouldUpdate), a
 	ld a, $03
-	ld (palette_RAM_C022_), a
+	ld (var.palette._RAM_C022_), a
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $13
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
-; 20th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 20th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_2168_:
 	ld hl, (_RAM_C6C4_)
 	ld a, l
@@ -2763,7 +2839,7 @@ _LABEL_2168_:
 	call _LABEL_2EF0_
 +:
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_199_
 
 ++:
@@ -2792,7 +2868,7 @@ _LABEL_2168_:
 	ld hl, _LABEL_4007_
 	ld (_RAM_C120_), hl
 	ld a, $1B
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 _LABEL_21D5_:
@@ -2821,7 +2897,7 @@ _LABEL_21D5_:
 	ld hl, _LABEL_4015_
 	ld (_RAM_C120_), hl
 	ld a, $1B
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 _LABEL_221C_:
@@ -2851,7 +2927,7 @@ _LABEL_221C_:
 	ld hl, _LABEL_4032_
 	ld (_RAM_C120_), hl
 	ld a, $1B
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 +:
@@ -2863,7 +2939,7 @@ _LABEL_221C_:
 	ld hl, _LABEL_4023_
 	ld (_RAM_C120_), hl
 	ld a, $1B
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 ++:
@@ -2881,10 +2957,10 @@ _LABEL_221C_:
 	ld hl, _LABEL_4039_
 	ld (_RAM_C120_), hl
 	ld a, $1B
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
-; 28th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 28th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_22AE_:
 	xor a
 	ld (_RAM_C002_), a
@@ -2893,7 +2969,7 @@ _LABEL_22AE_:
 	jr nz, +
 	call _LABEL_2EF0_
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_199_
 
 +:
@@ -2934,11 +3010,11 @@ _LABEL_22AE_:
 	ld (_RAM_C699_), a
 	ld (_RAM_C6A5_), a
 	ld a, $03
-	ld (palette_RAM_C022_), a
+	ld (var.palette._RAM_C022_), a
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $13
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
 _LABEL_2334_:
@@ -2947,10 +3023,10 @@ _LABEL_2334_:
 	ld (_RAM_C009_), a
 	call _LABEL_544_
 	ld a, $00
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
 
-; 15th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 15th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_2346_:
 	call _LABEL_12C8_
 	call _LABEL_12D1_
@@ -3009,16 +3085,16 @@ _LABEL_2346_:
 	ld a, $86
 	ld (_RAM_DD04_), a
 	ld a, $0E
-	ld (palette_RAM_C021_), a
+	ld (var.pallete.shouldUpdate), a
 	ld a, $70
-	ld (palette_RAM_C022_), a
+	ld (var.palette._RAM_C022_), a
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $14
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 21st entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 21st entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_23F9_:
 	ld a, (_RAM_C008_)
 	or a
@@ -3027,7 +3103,7 @@ _LABEL_23F9_:
 	or a
 	jr nz, +
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_18D_
 
 +:
@@ -3049,10 +3125,10 @@ _LABEL_23F9_:
 	ld hl, _LABEL_3AC4_
 	ld (v_entities), hl
 	ld a, $1C
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 29th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 29th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_2444_:
 	xor a
 	ld (_RAM_C002_), a
@@ -3061,7 +3137,7 @@ _LABEL_2444_:
 	jr nz, +
 	call _LABEL_2E54_
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	jp waitInterrupt_LABEL_18D_
 
 +:
@@ -3069,10 +3145,10 @@ _LABEL_2444_:
 	ld (_RAM_C008_), a
 	call _LABEL_544_
 	ld a, $00
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 16th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 16th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_2469_:
 	call _LABEL_12C8_
 	call _LABEL_12D1_
@@ -3127,16 +3203,16 @@ _LABEL_2469_:
 	ld (_RAM_C6C4_), a
 	ld (_RAM_C6C5_), a
 	ld a, $52
-	ld (palette_RAM_C021_), a
+	ld (var.pallete.shouldUpdate), a
 	ld a, $10
-	ld (palette_RAM_C022_), a
+	ld (var.palette._RAM_C022_), a
 	ld hl, $003C
-	ld (timer_RAM_C016_), hl
+	ld (var.timer), hl
 	ld a, $15
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 22nd entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 22nd entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_2510_:
 	ld a, (_RAM_C008_)
 	or a
@@ -3150,7 +3226,7 @@ _LABEL_2510_:
 	call _LABEL_2EF0_
 +:
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	call _LABEL_2DFE_
 	jp waitInterrupt_LABEL_18D_
 
@@ -3174,7 +3250,7 @@ _LABEL_2510_:
 	ld hl, _LABEL_3AC4_
 	ld (v_entities), hl
 	ld a, $1D
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
 _LABEL_256A_:
@@ -3196,10 +3272,10 @@ _LABEL_256A_:
 	ld hl, _LABEL_3B1B_
 	ld (v_entities), hl
 	ld a, $1D
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-; 30th entry of Jump Table from 1BB (indexed by _RAM_C01C_)
+; 30th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_25A1_:
 	xor a
 	ld (_RAM_C002_), a
@@ -3208,7 +3284,7 @@ _LABEL_25A1_:
 	jr nz, +
 	call _LABEL_2EF0_
 	call updateEntities_LABEL_508_
-	call _LABEL_25CC_
+	call drawEntities_LABEL_25CC_
 	call _LABEL_2DFE_
 	jp waitInterrupt_LABEL_18D_
 
@@ -3218,10 +3294,10 @@ _LABEL_25A1_:
 	ld (_RAM_C009_), a
 	call _LABEL_544_
 	ld a, $00
-	ld (_RAM_C01C_), a
+	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
 
-_LABEL_25CC_:
+drawEntities_LABEL_25CC_:
 	xor a
 	ld (_RAM_C3C0_), a
 	ld ix, v_entities
@@ -3911,7 +3987,7 @@ _LABEL_2B3E_:
 	ret
 
 _LABEL_2B86_:
-	ld a, (palette_RAM_C021_)
+	ld a, (var.pallete.shouldUpdate)
 	and $FE
 	jr z, +
 	rrca
@@ -3929,7 +4005,7 @@ _LABEL_2B86_:
 	call c, _LABEL_2C1B_
 	rrca
 +:
-	ld a, (palette_RAM_C022_)
+	ld a, (var.palette._RAM_C022_)
 	or a
 	ret z
 	rrca
@@ -4320,12 +4396,12 @@ _LABEL_2DB0_:
 	ld a, (_RAM_C005_)
 	bit 2, a
 	jr nz, +
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 4, (hl)
 	ret
 
 +:
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 4, (hl)
 	set 6, (hl)
 	ret
@@ -4344,14 +4420,14 @@ _LABEL_2DB0_:
 	jr -
 
 +:
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 5, (hl)
 	ret
 
 _LABEL_2DFE_:
 	ld a, (_RAM_C0A8_)
 	ld hl, _DATA_2E07_
-	jp _LABEL_177_
+	jp jumpToAthPointer
 
 ; Jump Table from 2E07 to 2E0E (4 entries, indexed by _RAM_C0A8_)
 _DATA_2E07_:
@@ -4363,7 +4439,7 @@ _LABEL_2E0F_:
 
 ; 2nd entry of Jump Table from 2E07 (indexed by _RAM_C0A8_)
 _LABEL_2E10_:
-	ld a, (_RAM_C0A3_)
+	ld a, (var.fade.state)
 	or a
 	ret nz
 	ld a, (_RAM_C0AA_)
@@ -4394,7 +4470,7 @@ _LABEL_2E10_:
 	add hl, de
 	ld de, _RAM_C02F_
 	call ldi4
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 0, (hl)
 	ret
 
@@ -4545,7 +4621,7 @@ _LABEL_2FB7_:
 	jp ldi31
 
 ; init Main menu Arrow Entity
-_LABEL_2FC2_:
+initArrow:
 	ld (ix+2), $01
 	ld (ix+3), $01
 
@@ -4562,17 +4638,18 @@ _LABEL_2FC2_:
 	ld (ix+9), $50
 
 	; Set next updater
-	ld (ix+0), <_LABEL_2FE3_
-	ld (ix+1), >_LABEL_2FE3_
+	ld (ix+0), <updateArrow
+	ld (ix+1), >updateArrow
 
 	ret
 
 ; Update Menu Arrow Entity
-_LABEL_2FE3_:
-	ld a, (input_RAM_C00C_)
+updateArrow:
+	ld a, (var.input.player1.debounced)
 	and JOY_UP | JOY_DOWN
 	ret z
 
+	; If skipped: Arrow doesnt move
 	call _LABEL_341A_
 
 	; y = $78 + option * 16
@@ -4597,7 +4674,7 @@ _LABEL_2FF9_:
 	ret
 
 _LABEL_301A_:
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $03
 	ret z
 	call _LABEL_341A_
@@ -4628,14 +4705,14 @@ _LABEL_3030_:
 	jp _LABEL_34D6_
 
 _LABEL_3064_:
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $30
 	jr z, +
 	ld a, (ix+14)
 	cp $03
 	jp z, _LABEL_2FB7_
 +:
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $03
 	jr z, +
 	call _LABEL_341A_
@@ -4647,11 +4724,11 @@ _LABEL_3064_:
 	add a, $70
 	ld (ix+6), a
 +:
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $0C
 	ret z
 	ld a, $95
-	ld (_RAM_DD05_), a
+	ld (var.audio.request), a
 	ld a, (ix+14)
 	or a
 	jr z, _LABEL_30A1_
@@ -4663,7 +4740,7 @@ _LABEL_3064_:
 
 _LABEL_30A1_:
 	ld hl, _RAM_C6A8_
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	bit 2, a
 	jr z, ++
 	dec (hl)
@@ -4685,7 +4762,7 @@ _LABEL_30A1_:
 
 _LABEL_30C6_:
 	ld hl, _RAM_C6A9_
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	bit 2, a
 	jr z, +
 	dec (hl)
@@ -4706,7 +4783,7 @@ _LABEL_30E5_:
 	bit 0, a
 	jr nz, ++
 	ld hl, _RAM_C6AC_
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	bit 2, a
 	jr z, +
 	dec (hl)
@@ -4724,7 +4801,7 @@ _LABEL_30E5_:
 
 ++:
 	ld hl, _RAM_C6AB_
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	bit 2, a
 	jr z, +
 	dec (hl)
@@ -4763,14 +4840,14 @@ _LABEL_312A_:
 	jp _LABEL_3503_
 
 _LABEL_3166_:	
-	ld a, (input_RAM_C00C_)	; input_RAM_C00C_ = $C00C
+	ld a, (var.input.player1.debounced)	; var.input.player1.debounced = $C00C
 	and $30
 	jr z, +
 	ld a, (ix+14)
 	cp $04
 	jp z, _LABEL_2FB7_
 +:	
-	ld a, (input_RAM_C00C_)	; input_RAM_C00C_ = $C00C
+	ld a, (var.input.player1.debounced)	; var.input.player1.debounced = $C00C
 	and $03
 	jr z, +
 	call _LABEL_341A_
@@ -4781,11 +4858,11 @@ _LABEL_3166_:
 	ld a, (hl)
 	ld (ix+6), a
 +:	
-	ld a, (input_RAM_C00C_)	; input_RAM_C00C_ = $C00C
+	ld a, (var.input.player1.debounced)	; var.input.player1.debounced = $C00C
 	and $0C
 	ret z
 	ld a, $95
-	ld (_RAM_DD05_), a	; _RAM_DD05_ = $DD05
+	ld (var.audio.request), a	; var.audio.request = $DD05
 	ld a, (ix+14)
 	or a
 	jp z, _LABEL_30A1_
@@ -4806,7 +4883,7 @@ _DATA_31AB_:
 	bit 0, a
 	jr nz, ++
 	ld hl, _RAM_C6B2_	; _RAM_C6B2_ = $C6B2
-	ld a, (input_RAM_C00C_)	; input_RAM_C00C_ = $C00C
+	ld a, (var.input.player1.debounced)	; var.input.player1.debounced = $C00C
 	bit 2, a
 	jr z, +
 	dec (hl)
@@ -4824,7 +4901,7 @@ _DATA_31AB_:
 	
 ++:	
 	ld hl, _RAM_C6B3_	; _RAM_C6B3_ = $C6B3
-	ld a, (input_RAM_C00C_)	; input_RAM_C00C_ = $C00C
+	ld a, (var.input.player1.debounced)	; var.input.player1.debounced = $C00C
 	bit 2, a
 	jr z, +
 	dec (hl)
@@ -5003,29 +5080,39 @@ _LABEL_33FF_:
 
 _LABEL_341A_:
 	rrca
-	jr nc, ++
-	ld a, $95
-	ld (_RAM_DD05_), a
-	ld a, (ix+14)
-	sub $01
-	jr nc, +
-	ld a, (ix+15)
-	dec a
-+:
-	ld (ix+14), a
-	ret
+	
+	; If 
+	jr nc, @endif3
+		; Request arrow sound
+		ld a, SOUND_ARROW
+		ld (var.audio.request), a
 
-++:
-	ld a, $95
-	ld (_RAM_DD05_), a
-	ld a, (ix+14)
-	inc a
-	cp (ix+15)
-	jr c, +
-	xor a
-+:
-	ld (ix+14), a
-	ret
+		; Update option index, handling loop
+		ld a, (ix+14)
+		sub $01
+		jr nc, @endif
+			ld a, (ix+15)
+			dec a
+		@endif:
+		ld (ix+14), a
+
+		ret
+
+	@endif3:
+		; Request arrow sound
+		ld a, SOUND_ARROW
+		ld (var.audio.request), a
+
+		; Update option index, handling loop
+		ld a, (ix+14)
+		inc a
+		cp (ix+15)
+		jr c, @endif2
+			xor a
+		@endif2:
+		ld (ix+14), a
+
+		ret
 
 _LABEL_3444_:
 	ld de, $3BA6
@@ -5329,16 +5416,16 @@ _LABEL_3636_:
 	ld a, b
 	ld (_RAM_C699_), a
 	ld a, $93
-	ld (_RAM_DD05_), a
+	ld (var.audio.request), a
 	ld a, (_RAM_C005_)
 	bit 1, a
 	jr nz, +
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 1, (hl)
 	jr ++
 
 +:
-	ld hl, palette_RAM_C022_
+	ld hl, var.palette._RAM_C022_
 	set 0, (hl)
 ++:
 	ld a, $01
@@ -5408,20 +5495,20 @@ _LABEL_36F9_:
 	ld a, (_RAM_C693_)
 	or a
 	jr z, +
-	ld a, (_RAM_C00B_)
+	ld a, (var.input.player1.data)
 	and $02
 	jr nz, ++
 	xor a
 	ld (_RAM_C693_), a
 +:
-	ld a, (_RAM_C00B_)
+	ld a, (var.input.player1.data)
 	bit 1, a
 	jr z, ++
 	and $0C
 	jr z, +++
 	xor a
-	ld (_RAM_C00B_), a
-	ld (input_RAM_C00C_), a
+	ld (var.input.player1.data), a
+	ld (var.input.player1.debounced), a
 ++:
 	dec (ix+25)
 	jp p, ++++
@@ -5445,17 +5532,17 @@ _LABEL_36F9_:
 	or a
 	jr z, ++++
 	ld a, $92
-	ld (_RAM_DD05_), a
+	ld (var.audio.request), a
 ++++:
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $30
 	call nz, _LABEL_4384_
 	ld hl, _LABEL_4464_	; Overriding return address
 	push hl
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $0C
 	ret z
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	bit 2, a
 	jp z, _LABEL_436F_
 	jp _LABEL_435A_
@@ -5479,7 +5566,7 @@ _LABEL_37A0_:
 	or a
 	jp nz, _LABEL_3611_
 	ld (ix+2), $00
-	ld a, (_RAM_C00B_)
+	ld a, (var.input.player1.data)
 	and $0E
 	cp $02
 	jr z, _LABEL_37F7_
@@ -5488,13 +5575,13 @@ _LABEL_37A0_:
 	call _LABEL_447C_
 	ld hl, +	; Overriding return address
 	push hl
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $30
 	call nz, _LABEL_4384_
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	and $0C
 	ret z
-	ld a, (input_RAM_C00C_)
+	ld a, (var.input.player1.debounced)
 	bit 2, a
 	jp z, _LABEL_436F_
 	jp _LABEL_435A_
@@ -5636,7 +5723,7 @@ _LABEL_38EF_:
 +:
 	ldi
 	ldi
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 0, (hl)
 	ret
 
@@ -5673,7 +5760,7 @@ _LABEL_3954_:
 	ld a, (_RAM_C005_)
 	and $03
 	jr nz, ++
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 2, (hl)
 	jr ++
 
@@ -5684,7 +5771,7 @@ _LABEL_3954_:
 	ld a, (_RAM_C005_)
 	and $03
 	jr nz, ++
-	ld hl, palette_RAM_C022_
+	ld hl, var.palette._RAM_C022_
 	set 5, (hl)
 ++:
 	ld a, (_DATA_1B_)
@@ -5696,7 +5783,7 @@ _LABEL_3954_:
 	add a, $F0
 	ld (_RAM_DD09_), a
 	ld a, $90
-	ld (_RAM_DD05_), a
+	ld (var.audio.request), a
 	ld (ix+25), $0B
 	ld (ix+0), $A6
 	ld (ix+1), $39
@@ -5751,7 +5838,7 @@ _LABEL_39E9_:
 	adc a, $00
 	ld (_RAM_C694_), hl
 	ld (_RAM_C696_), a
-	ld hl, palette_RAM_C021_
+	ld hl, var.pallete.shouldUpdate
 	set 3, (hl)
 	jr ++
 
@@ -5762,7 +5849,7 @@ _LABEL_39E9_:
 	adc a, $00
 	ld (_RAM_C6A0_), hl
 	ld (_RAM_C6A2_), a
-	ld hl, palette_RAM_C022_
+	ld hl, var.palette._RAM_C022_
 	set 6, (hl)
 ++:
 	ld hl, _RAM_C4A1_
@@ -5906,16 +5993,16 @@ _LABEL_3C04_:
 	ld a, b
 	ld (_RAM_C6A5_), a
 	ld a, $93
-	ld (_RAM_DD05_), a
+	ld (var.audio.request), a
 	ld a, (_RAM_C005_)
 	bit 1, a
 	jr nz, +
-	ld hl, palette_RAM_C022_
+	ld hl, var.palette._RAM_C022_
 	set 4, (hl)
 	jr ++
 
 +:
-	ld hl, palette_RAM_C022_
+	ld hl, var.palette._RAM_C022_
 	set 1, (hl)
 ++:
 	ld a, $01
@@ -6148,7 +6235,7 @@ _LABEL_4384_:
 	ld (ix+21), d
 ++:
 	ld a, $95
-	ld (_RAM_DD05_), a
+	ld (var.audio.request), a
 	ret
 
 _LABEL_43B4_:
