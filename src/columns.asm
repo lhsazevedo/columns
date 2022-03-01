@@ -335,7 +335,7 @@ tickTimer:
 updatersPointers:
 .dw _LABEL_1641_
 .dw _LABEL_1641_
-.dw _LABEL_1649_
+.dw initMainMenuState
 .dw updateMainMenuState
 .dw _LABEL_175C_
 .dw updateDemoState
@@ -865,8 +865,8 @@ updateEntities_LABEL_508_:
 
 	ret
 
-_LABEL_526_:
-	call _LABEL_68F_
+fade.in:
+	call loadColors
 	ld a, $01
 	ld (var.fade.state), a
 	
@@ -875,21 +875,27 @@ _LABEL_526_:
 	ld de, v_filteredPalette + 1
 	ld (hl), $00
 	call ldi31
+
 	ld hl, var.pallete.shouldUpdate
 	set 0, (hl)
+
 	ld a, $04
 	ld (var.fade.timer), a
+
 	ret
 
-_LABEL_544_:
+fade.out:
 	ld a, $02
 	ld (var.fade.state), a
+
 	ld hl, v_filteredPalette
 	ld de, v_palette
 	ld bc, $0020
 	call ldi32
+
 	ld a, $04
 	ld (var.fade.timer), a
+
 	ret
 
 fade.update:
@@ -1109,31 +1115,67 @@ _LABEL_65D_:
 	djnz _LABEL_65D_
 	ret
 
-; Data from 674 to 68E (27 bytes)
-.db $C5 $08 $CF $7E $D3 $BE $08 $18 $00 $D3 $BE $08 $23 $0D $20 $F3
-.db $08 $EB $01 $40 $00 $09 $EB $C1 $10 $E6 $C9
+; Unused
+_LABEL_674_:
+	@loop:
+		push bc
+		ex af, af'
+		rst $08	; setVdpAddress
+		@loop2:	
+			ld a, (hl)
+			out (Port_VDPData), a
+			ex af, af'
+			jr +
+				; ...
+			+:	
+			out (Port_VDPData), a
+			ex af, af'
+			inc hl
+			dec c
+		jr nz, @loop2
 
-_LABEL_68F_:
+		ex af, af'
+		ex de, hl
+		ld bc, $0040
+		add hl, bc
+		ex de, hl
+		pop bc
+	djnz @loop
+
+	ret
+
+loadColors:
 	ld de, v_palette
-	jr +
 
-; Data from 694 to 69E (11 bytes)
-.db $3A $21 $C0 $F6 $01 $32 $21 $C0 $11 $23 $C0
+	; Never taken if condition
+	jr @endif
+		ld a, (var.pallete.shouldUpdate)
+		or $01
+		ld (var.pallete.shouldUpdate), a
+		ld de, v_filteredPalette
+	@endif:
 
-+:
+	; Load offset byte
 	ld a, (hl)
 	inc hl
-	push hl
+	push hl ; save source
+
+	; Add offset to dest
 	ld l, a
 	ld h, $00
 	add hl, de
 	ex de, hl
+
+	; Load length byte
 	pop hl
 	ld a, (hl)
 	ld c, a
 	ld b, $00
 	inc hl
+
+	; Copy
 	ldir
+
 	ret
 
 clearFilteredPalette:
@@ -1650,64 +1692,100 @@ _LABEL_1641_:
 	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
 
-; 3rd entry of Jump Table from 1BB (indexed by var.state)
-_LABEL_1649_:
+initMainMenuState:
 	call _LABEL_12C8_
 	call _LABEL_15E3_
 	call _LABEL_12D1_
+
 	ld a, $02
 	ld (_RAM_FFFF_), a
+
+	; Load text character tiles
 	ld a, $01
 	call _LABEL_12E2_
+
+	; Load arrow tiles
 	ld hl, _DATA_8000_
 	ld de, $37C0
 	ld a, $0F
 	call _LABEL_746_
+
+	; Load title and statue tiles
 	ld de, $0000
 	ld hl, _DATA_8899_
 	call _LABEL_6D0_
+
+	; TODO: Probably extracting
 	ld de, _RAM_CD00_
 	ld hl, _DATA_86B3_
 	call _LABEL_70C_
+
+	; Load title tilemap
 	ld hl, _RAM_CD00_
 	ld de, $3844
 	ld bc, $0A38
 	call _LABEL_648_
+
+	; TODO: Probably extracting
 	ld de, _RAM_CD00_
 	ld hl, _DATA_87FD_
 	call _LABEL_70C_
+
+	; Draw left statue
 	ld hl, _RAM_CD00_
 	ld de, $3AC2
 	ld bc, $0C08
 	call _LABEL_648_
+
+	; TODO: Probably extracting
 	ld de, _RAM_CD00_
 	ld hl, _DATA_8846_
 	call _LABEL_70C_
+
+	; Draw right statue
 	ld hl, _RAM_CD00_
 	ld de, $3AF6
 	ld bc, $0C08
 	call _LABEL_648_
+
+	; Draw "Press Start Button"
 	xor a
 	ld de, $3B4E
 	call _LABEL_2885_
+
+	; Draw 1st menu option
+	; "1 PLAYER"
 	ld a, $01
 	ld de, $3BD8
 	call _LABEL_2885_
+
+	; Draw 2nd menu option
+	; "2 PLAYER"
 	ld a, $03
 	ld de, $3C58
 	call _LABEL_2885_
+
+	; Draw 3rd menu option
+	; "VERSUS"
 	ld a, $02
 	ld de, $3CDA
 	call _LABEL_2885_
+
+	; Draw copyright stuff
 	ld a, $04
 	ld de, $3DE6
 	call _LABEL_2885_
-	ld hl, _DATA_8012_
-	call _LABEL_68F_
-	ld hl, _DATA_86A1_
-	call _LABEL_68F_
+
+	; Load colors
+	ld hl, palette_DATA_8012_
+	call loadColors
+	ld hl, palette_DATA_86A1_
+	call loadColors
+
+	; Fade in
 	ld hl, palette_DATA_9A15_
-	call _LABEL_526_
+	call fade.in
+
 	xor a
 	ld (_RAM_D000_), a
 	ld (_RAM_C00A_), a
@@ -1716,21 +1794,26 @@ _LABEL_1649_:
 	ld hl, initArrow
 	ld (v_entities), hl
 
+	; TODO
 	ld a, $02
 	ld (_RAM_C018_), a
+
 	ei
 
 	; Request main menu song
-	ld a, $81
+	ld a, SOUND_MAIN_MENU_SONG
 	ld (_RAM_DD04_), a
 
+	; Set main menu timer
 	ld hl, $0258
 	ld (var.timer), hl
-	ld a, $03
+
+	; Set next state
+	ld a, $03 ; updateMainMenuState
 	ld (var.state), a
+
 	jp waitInterrupt_LABEL_181_
 
-; 4th entry of Jump Table from 1BB (indexed by var.state)
 updateMainMenuState:
 	ld hl, (var.timer)
 	ld a, l
@@ -1759,7 +1842,8 @@ updateMainMenuState:
 	or a
 	jp nz, waitInterrupt_LABEL_181_
 
-	call _LABEL_544_
+	call fade.out
+
 	ld a, $04
 	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
@@ -1874,7 +1958,7 @@ updateDemoState:
 	ld (_RAM_C006_), a
 	ld hl, _RAM_C007_
 	inc (hl)
-	call _LABEL_544_
+	call fade.out
 	ld a, $00
 	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
@@ -1888,7 +1972,7 @@ _LABEL_1845_:
 	ld (_RAM_C006_), a
 	ld hl, _RAM_C007_
 	inc (hl)
-	call _LABEL_544_
+	call fade.out
 	ld a, $02
 	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
@@ -2196,7 +2280,7 @@ updateOptionsMenuState:
 	ld (audioFadeOutTimer_RAM_DD0E_), a
 	ld a, $04
 	ld (audio_RAM_DD0F_), a
-	call _LABEL_544_
+	call fade.out
 	ld a, (_RAM_C005_)
 	add a, $0A
 	ld (var.state), a
@@ -2247,14 +2331,14 @@ _LABEL_1BA6_:
 	ld (_RAM_C2E0_), hl
 	ld a, $02
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_8012_
-	call _LABEL_68F_
+	ld hl, palette_DATA_8012_
+	call loadColors
 	ld hl, palette_DATA_9A15_
-	call _LABEL_68F_
+	call loadColors
 	ld a, $03
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_C000_
-	call _LABEL_526_
+	ld hl, palette_DATA_C000_
+	call fade.in
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
@@ -2318,7 +2402,7 @@ _LABEL_1C98_:
 +:
 	xor a
 	ld (_RAM_C008_), a
-	call _LABEL_544_
+	call fade.out
 	ld a, $00
 	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
@@ -2360,14 +2444,14 @@ _LABEL_1CBD_:
 	ld (_RAM_C140_), hl
 	ld a, $02
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_8012_
-	call _LABEL_68F_
+	ld hl, palette_DATA_8012_
+	call loadColors
 	ld hl, palette_DATA_9A15_
-	call _LABEL_68F_
+	call loadColors
 	ld a, $03
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_C451_
-	call _LABEL_526_
+	ld hl, palette_DATA_C451_
+	call fade.in
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
@@ -2467,7 +2551,7 @@ _LABEL_1DEF_:
 	xor a
 	ld (_RAM_C008_), a
 	ld (_RAM_C009_), a
-	call _LABEL_544_
+	call fade.out
 	ld a, $00
 	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
@@ -2485,8 +2569,8 @@ _LABEL_1E20_:
 	call _LABEL_604_
 	ld a, $02
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_8012_
-	call _LABEL_526_
+	ld hl, palette_DATA_8012_
+	call fade.in
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
@@ -2504,7 +2588,7 @@ _LABEL_1E59_:
 	call tickTimer
 	jp nz, waitInterrupt_LABEL_181_
 +:
-	call _LABEL_544_
+	call fade.out
 	ld a, $00
 	ld (var.state), a
 	jp waitInterrupt_LABEL_181_
@@ -2552,14 +2636,14 @@ _LABEL_1E79_:
 	ld (_RAM_C120_), hl
 	ld a, $02
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_8012_
-	call _LABEL_68F_
+	ld hl, palette_DATA_8012_
+	call loadColors
 	ld hl, palette_DATA_9A15_
-	call _LABEL_68F_
+	call loadColors
 	ld a, $03
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_CD23_
-	call _LABEL_526_
+	ld hl, palette_DATA_CD23_
+	call fade.in
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
@@ -2738,7 +2822,7 @@ _LABEL_2027_:
 	jp waitInterrupt_LABEL_199_
 
 _LABEL_2091_:
-	call _LABEL_544_
+	call fade.out
 	ld a, $00
 	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
@@ -2789,14 +2873,14 @@ _LABEL_209C_:
 	ld (_RAM_C160_), hl
 	ld a, $02
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_8012_
-	call _LABEL_68F_
+	ld hl, palette_DATA_8012_
+	call loadColors
 	ld hl, palette_DATA_9A15_
-	call _LABEL_68F_
+	call loadColors
 	ld a, $03
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_D6E0_
-	call _LABEL_526_
+	ld hl, palette_DATA_D6E0_
+	call fade.in
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
@@ -3021,7 +3105,7 @@ _LABEL_2334_:
 	xor a
 	ld (_RAM_C008_), a
 	ld (_RAM_C009_), a
-	call _LABEL_544_
+	call fade.out
 	ld a, $00
 	ld (var.state), a
 	jp waitInterrupt_LABEL_199_
@@ -3071,14 +3155,14 @@ _LABEL_2346_:
 	ld (_RAM_C6A6_), a
 	ld a, $02
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_8012_
-	call _LABEL_68F_
+	ld hl, palette_DATA_8012_
+	call loadColors
 	ld hl, palette_DATA_9A15_
-	call _LABEL_68F_
+	call loadColors
 	ld a, $03
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_E29C_
-	call _LABEL_526_
+	ld hl, palette_DATA_E29C_
+	call fade.in
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
@@ -3143,7 +3227,7 @@ _LABEL_2444_:
 +:
 	xor a
 	ld (_RAM_C008_), a
-	call _LABEL_544_
+	call fade.out
 	ld a, $00
 	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
@@ -3183,14 +3267,14 @@ _LABEL_2469_:
 	ld (_RAM_C140_), hl
 	ld a, $02
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_8012_
-	call _LABEL_68F_
+	ld hl, palette_DATA_8012_
+	call loadColors
 	ld hl, palette_DATA_9A15_
-	call _LABEL_68F_
+	call loadColors
 	ld a, $03
 	ld (_RAM_FFFF_), a
-	ld hl, _DATA_E8CE_
-	call _LABEL_526_
+	ld hl, palette_DATA_E8CE_
+	call fade.in
 	ld a, $02
 	ld (_RAM_C018_), a
 	ei
@@ -3292,7 +3376,7 @@ _LABEL_25A1_:
 	xor a
 	ld (_RAM_C008_), a
 	ld (_RAM_C009_), a
-	call _LABEL_544_
+	call fade.out
 	ld a, $00
 	ld (var.state), a
 	jp waitInterrupt_LABEL_18D_
@@ -7732,7 +7816,7 @@ _DATA_8000_:
 .db $00 $00
 
 ; Data from 8012 to 8033 (34 bytes)
-_DATA_8012_:
+palette_DATA_8012_:
 .db $00 $20
 .dsb 15, $00
 .db $3F
@@ -7860,7 +7944,7 @@ _DATA_83C2_:
 .db $24 $EC $12 $EC $12 $0C $F2 $FE $01 $FE $01 $FE $01 $00 $FF
 
 ; Data from 86A1 to 86B2 (18 bytes)
-_DATA_86A1_:
+palette_DATA_86A1_:
 .db $00 $10 $00 $3F $00 $00 $00 $00 $0F $03 $00 $10 $02 $20 $1B $30
 .db $2F $34
 
@@ -7911,8 +7995,8 @@ _DATA_8899_:
 
 ; Data from 9A15 to 9A26 (18 bytes)
 palette_DATA_9A15_:
-.db $10 $10 $00 $03 $38 $04 $33 $0B $0F $00 $0A $30 $02 $0C $22 $15
-.db $2A $3F
+.db $10 $10
+.db $00 $03 $38 $04 $33 $0B $0F $00 $0A $30 $02 $0C $22 $15 $2A $3F
 
 ; 1st entry of Pointer Table from 34B1 (indexed by _RAM_C6A9_)
 ; Data from 9A27 to 9AE8 (194 bytes)
@@ -8108,7 +8192,7 @@ _DATA_A206_:
 .ORG $0000
 
 ; Data from C000 to C011 (18 bytes)
-_DATA_C000_:
+palette_DATA_C000_:
 .db $00 $10 $00 $3F $00 $0F
 .dsb 12, $00
 
@@ -8191,7 +8275,7 @@ _DATA_C435_:
 .db $00 $80 $1C $00 $02 $80 $82 $00 $80 $1C $00 $00
 
 ; Data from C451 to C462 (18 bytes)
-_DATA_C451_:
+palette_DATA_C451_:
 .db $00 $10 $00 $3F $00 $2E $2A $00 $1A $38 $34 $30 $20 $13 $3F $3F
 .db $00 $00
 
@@ -8230,7 +8314,7 @@ _DATA_C612_:
 .incbin "columns_DATA_C612_.inc"
 
 ; Data from CD23 to CD34 (18 bytes)
-_DATA_CD23_:
+palette_DATA_CD23_:
 .db $00 $10 $00 $3F $0F $02 $00 $00 $1A $38 $14 $29 $3E $01 $0F $0E
 .db $09 $04
 
@@ -8286,7 +8370,7 @@ _DATA_CFED_:
 .incbin "columns_DATA_CFED_.inc"
 
 ; Data from D6E0 to D6F1 (18 bytes)
-_DATA_D6E0_:
+palette_DATA_D6E0_:
 .db $00 $10 $00 $3F $0F $02 $00 $25 $2A $2F $14 $29 $3E $01 $0F $0E
 .db $09 $04
 
@@ -8341,7 +8425,7 @@ _DATA_D9A0_:
 .incbin "columns_DATA_D9A0_.inc"
 
 ; Data from E29C to E2AD (18 bytes)
-_DATA_E29C_:
+palette_DATA_E29C_:
 .db $00 $10 $00 $3F $00 $0F $05
 .dsb 11, $00
 
@@ -8385,7 +8469,7 @@ _DATA_E4AD_:
 .incbin "columns_DATA_E4AD_.inc"
 
 ; Data from E8CE to E8DF (18 bytes)
-_DATA_E8CE_:
+palette_DATA_E8CE_:
 .db $00 $10 $00 $3F $00 $2A $00 $1A $38 $34 $30 $20 $0F $05 $3F $3F
 .db $00 $00
 
