@@ -514,14 +514,14 @@ _LABEL_674_:
     ret
 
 loadColors:
-    ld de, v_palette
+    ld de, var.palette
 
     ; Never taken if condition
     jr @endif
         ld a, (var.pallete.shouldUpdate)
         or $01
         ld (var.pallete.shouldUpdate), a
-        ld de, v_filteredPalette
+        ld de, var.filteredPallete
     @endif:
 
     ; Load offset byte
@@ -548,8 +548,8 @@ loadColors:
     ret
 
 clearFilteredPalette:
-    ld hl, v_filteredPalette
-    ld de, v_filteredPalette + 1
+    ld hl, var.filteredPallete
+    ld de, var.filteredPallete + 1
     ld (hl), $00
     call ldi63
     ld hl, var.pallete.shouldUpdate
@@ -561,7 +561,7 @@ writePalette:
     out (Port_VDPAddress), a
     ld a, $C0
     out (Port_VDPAddress), a
-    ld hl, v_filteredPalette
+    ld hl, var.filteredPallete
     ld c, Port_VDPData
     jp outi32
 

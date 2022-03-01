@@ -37,7 +37,7 @@ var.previousState db
 .enum $C021 export
 var.pallete.shouldUpdate db
 var.palette._RAM_C022_ db
-v_filteredPalette db
+var.filteredPallete db
 .ende
 
 .enum $C026 export
@@ -53,7 +53,7 @@ _RAM_C02F_ db
 .ende
 
 .enum $C063 export
-v_palette dsb $10
+var.palette dsb $10
 _RAM_C073_ dsb $10
 .ende
 

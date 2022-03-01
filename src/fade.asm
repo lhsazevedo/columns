@@ -4,8 +4,8 @@ fade.in:
     ld (var.fade.state), a
     
     ; Clear filtered pallete
-    ld hl, v_filteredPalette
-    ld de, v_filteredPalette + 1
+    ld hl, var.filteredPallete
+    ld de, var.filteredPallete + 1
     ld (hl), $00
     call ldi31
 
@@ -21,8 +21,8 @@ fade.out:
     ld a, $02
     ld (var.fade.state), a
 
-    ld hl, v_filteredPalette
-    ld de, v_palette
+    ld hl, var.filteredPallete
+    ld de, var.palette
     ld bc, $0020
     call ldi32
 
@@ -83,8 +83,8 @@ fade.update:
     @endif:
 
     ld c, a
-    ld de, v_palette
-    ld hl, v_filteredPalette
+    ld de, var.palette
+    ld hl, var.filteredPallete
 
     ; Number of colors
     ld b, $20
