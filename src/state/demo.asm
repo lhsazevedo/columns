@@ -80,7 +80,7 @@ state.demo.update:
     call _LABEL_189C_
     call _LABEL_2E54_
     call _LABEL_2EF0_
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     call _LABEL_2DFE_
     jp waitInterrupt_LABEL_18D_

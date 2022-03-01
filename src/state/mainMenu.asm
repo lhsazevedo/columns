@@ -131,7 +131,7 @@ state.mainMenu.update:
     and JOY_FIREA | JOY_FIREB
     jr nz, @actionPressed
 
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     
     ; TODO: Tick and check timer

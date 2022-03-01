@@ -47,7 +47,7 @@ _LABEL_1A45_:
     ld hl, _RAM_CD00_
     ld bc, $0C40
     call _LABEL_65D_
-    call updateEntities_LABEL_508_
+    call updateEntities
     ld a, $09
     ld (var.state), a
     jp waitInterrupt_LABEL_181_
@@ -176,7 +176,7 @@ state.optionsMenu.update:
     or e
     or d
     jr z, +
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_181_
 

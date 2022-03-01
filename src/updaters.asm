@@ -77,7 +77,7 @@ state.gameplay.update:
     jr nz, +
     call _LABEL_2E54_
 +:
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_18D_
 
@@ -110,7 +110,7 @@ _LABEL_1C98_:
     or a
     jr nz, +
     call _LABEL_2E54_
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_18D_
 
@@ -195,7 +195,7 @@ _LABEL_1D64_:
     or a
     jr nz, _LABEL_1DB8_
     call _LABEL_2EF0_
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     call _LABEL_2DFE_
     jp waitInterrupt_LABEL_18D_
@@ -257,7 +257,7 @@ _LABEL_1DEF_:
     jr nz, +
     call _LABEL_2EF0_
 +:
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     call _LABEL_2DFE_
     jp waitInterrupt_LABEL_18D_
@@ -380,7 +380,7 @@ _LABEL_1F15_:
     ld a, (_RAM_C009_)
     or a
     jp nz, _LABEL_1FA9_
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_199_
 
@@ -495,7 +495,7 @@ _LABEL_2027_:
     ld a, (_RAM_C008_)
     or a
     jr nz, +
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_199_
 
@@ -637,7 +637,7 @@ _LABEL_2168_:
     jr nz, +
     call _LABEL_2EF0_
 +:
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_199_
 
@@ -767,7 +767,7 @@ _LABEL_22AE_:
     or a
     jr nz, +
     call _LABEL_2EF0_
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_199_
 
@@ -901,7 +901,7 @@ _LABEL_23F9_:
     ld a, (_RAM_C009_)
     or a
     jr nz, +
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_18D_
 
@@ -935,7 +935,7 @@ _LABEL_2444_:
     or a
     jr nz, +
     call _LABEL_2E54_
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_18D_
 
@@ -1024,7 +1024,7 @@ _LABEL_2510_:
     jr nz, +
     call _LABEL_2EF0_
 +:
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     call _LABEL_2DFE_
     jp waitInterrupt_LABEL_18D_
@@ -1082,7 +1082,7 @@ _LABEL_25A1_:
     or a
     jr nz, +
     call _LABEL_2EF0_
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     call _LABEL_2DFE_
     jp waitInterrupt_LABEL_18D_

@@ -27,7 +27,7 @@ state.modeMenu.update:
     ld a, (var.input.player1.debounced)
     and $30
     jr nz, +
-    call updateEntities_LABEL_508_
+    call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_181_
 
