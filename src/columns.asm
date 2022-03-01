@@ -1338,21 +1338,7 @@ _LABEL_746_:
 ; Data from 76B to 1012 (2216 bytes)
 .incbin "data/columns_DATA_76B_.inc"
 
-outi128:
-.repeat 64
-    outi
-.endr
-
-outi64:
-.repeat 32
-    outi
-.endr
-
-outi32:
-.repeat 32
-    outi
-.endr
-    ret
+.INCLUDE "util/outi.asm"
 
 _LABEL_1114_:
     outi
@@ -1375,7 +1361,7 @@ _LABEL_1114_:
 .db $BE $08 $D3 $BE $08 $D3 $BE $08 $D3 $BE $08 $D3 $BE $08 $D3 $BE
 .db $08 $D3 $BE $08 $D3 $BE $08 $D3 $BE $08 $D3 $BE $08 $C9
 
-.INCLUDE "ldi.asm"
+.INCLUDE "util/ldi.asm"
 
 ; Data from 126C to 12A8 (61 bytes)
 .db $ED $A8 $ED $A8 $ED $A8 $ED $A8 $ED $A8 $ED $A8 $ED $A8 $ED $A8
