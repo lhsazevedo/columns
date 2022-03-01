@@ -97,7 +97,7 @@ state.mainMenu.init:
     ld (_RAM_C00A_), a
 
     ; Spawn arrow
-    ld hl, initArrow
+    ld hl, entities.arrow.init
     ld (v_entities), hl
 
     ; TODO

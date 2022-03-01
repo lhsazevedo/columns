@@ -1,5 +1,5 @@
 ; init Main menu Arrow Entity
-initArrow:
+entities.arrow.init:
     ld (ix+2), $01
     ld (ix+3), $01
 
@@ -16,13 +16,13 @@ initArrow:
     ld (ix+9), $50
 
     ; Set next updater
-    ld (ix+0), <updateArrow
-    ld (ix+1), >updateArrow
+    ld (ix+0), <entities.arrow.update
+    ld (ix+1), >entities.arrow.update
 
     ret
 
 ; Update Menu Arrow Entity
-updateArrow:
+entities.arrow.update:
     ld a, (var.input.player1.debounced)
     and JOY_UP | JOY_DOWN
     ret z
