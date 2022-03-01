@@ -334,19 +334,14 @@ tickTimer:
 updatersPointers:
 .dw state.entry.update
 .dw state.entry.update
-
 .dw state.mainMenu.init
 .dw state.mainMenu.update
-
 .dw state.demo.init
 .dw state.demo.update
-
 .dw state.modeMenu.init
 .dw state.modeMenu.update
-
 .dw state.optionsMenu.init
 .dw state.optionsMenu.update
-
 .dw _LABEL_1BA6_
 .dw _LABEL_1CBD_
 .dw _LABEL_1E79_
