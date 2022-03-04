@@ -1,10 +1,10 @@
 state.demo.init:
-    call _LABEL_12C8_
+    call waitForInterruptIfFading
     ld a, (_RAM_C007_)
     bit 0, a
     jr nz, _LABEL_17AD_
     xor a
-    ld (_RAM_C005_), a
+    ld (mode_RAM_C005_), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_9A27_
@@ -35,7 +35,7 @@ state.demo.init:
 
 _LABEL_17AD_:
     ld a, $01
-    ld (_RAM_C005_), a
+    ld (mode_RAM_C005_), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_9AE9_

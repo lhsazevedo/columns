@@ -1,8 +1,8 @@
 ; 9th entry of Jump Table from 1BB (indexed by var.state)
 state.optionsMenu.init:
-    call _LABEL_5EA_
-    call _LABEL_12FD_
-    ld hl, (_RAM_C005_)
+    call clearEntitiesAlt_LABEL_5EA_
+    call clearRam_LABEL_12FD_
+    ld hl, (mode_RAM_C005_)
     ld h, $00
     add hl, hl
     ld de, _DATA_1A0B_
@@ -13,7 +13,7 @@ state.optionsMenu.init:
     ld l, a
     jp (hl)
 
-; Jump Table from 1A0B to 1A16 (6 entries, indexed by _RAM_C005_)
+; Jump Table from 1A0B to 1A16 (6 entries, indexed by mode_RAM_C005_)
 _DATA_1A0B_:
 .dw _LABEL_1A17_
 .dw _LABEL_1A5F_
@@ -22,7 +22,7 @@ _DATA_1A0B_:
 .dw _LABEL_1B0E_
 .dw _LABEL_1B3F_
 
-; 1st entry of Jump Table from 1A0B (indexed by _RAM_C005_)
+; 1st entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
 _LABEL_1A17_:
     ld a, $08
     ld de, _RAM_CD58_
@@ -44,15 +44,15 @@ _LABEL_1A17_:
 _LABEL_1A45_:
     call waitInterrupt_LABEL_181_
     ld de, $3AC0
-    ld hl, _RAM_CD00_
+    ld hl, nametable_RAM_CD00_
     ld bc, $0C40
-    call _LABEL_65D_
+    call copyAreaToNametable_LABEL_65D_
     call updateEntities
     ld a, $09
     ld (var.state), a
     jp waitInterrupt_LABEL_181_
 
-; 2nd entry of Jump Table from 1A0B (indexed by _RAM_C005_)
+; 2nd entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
 _LABEL_1A5F_:
     ld a, $08
     ld de, $CD58
@@ -73,7 +73,7 @@ _LABEL_1A5F_:
     ld (v_entities), hl
     jp _LABEL_1A45_
 
-; 3rd entry of Jump Table from 1A0B (indexed by _RAM_C005_)
+; 3rd entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
 _LABEL_1A90_:
     ld a, $08
     ld de, $CD58
@@ -99,7 +99,7 @@ _LABEL_1A90_:
     ld (_RAM_C120_), hl
     jp _LABEL_1A45_
 
-; 4th entry of Jump Table from 1A0B (indexed by _RAM_C005_)
+; 4th entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
 _LABEL_1ACF_:
     ld a, $08
     ld de, $CD58
@@ -125,7 +125,7 @@ _LABEL_1ACF_:
     ld (_RAM_C120_), hl
     jp _LABEL_1A45_
 
-; 5th entry of Jump Table from 1A0B (indexed by _RAM_C005_)
+; 5th entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
 _LABEL_1B0E_:
     ld a, $08
     ld de, $CD58
@@ -146,7 +146,7 @@ _LABEL_1B0E_:
     ld (v_entities), hl
     jp _LABEL_1A45_
 
-; 6th entry of Jump Table from 1A0B (indexed by _RAM_C005_)
+; 6th entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
 _LABEL_1B3F_:
     ld a, $08
     ld de, $CD58
@@ -186,7 +186,7 @@ state.optionsMenu.update:
     ld a, $04
     ld (audio_RAM_DD0F_), a
     call fade.out
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     add a, $0A
     ld (var.state), a
     jp waitInterrupt_LABEL_181_

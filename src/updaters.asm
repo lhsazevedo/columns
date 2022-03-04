@@ -6,12 +6,12 @@
 
 ; 11th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1BA6_:
-    call _LABEL_12C8_
-    call _LABEL_12D1_
+    call waitForInterruptIfFading
+    call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
     ld a, $02
     ld (_RAM_FFFF_), a
     ld a, $01
-    call _LABEL_12E2_
+    call loadTextTilesWithColor
     ld a, $0F
     call _LABEL_12EB_
     call _LABEL_1317_
@@ -124,12 +124,12 @@ _LABEL_1C98_:
 
 ; 12th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1CBD_:
-    call _LABEL_12C8_
-    call _LABEL_12D1_
+    call waitForInterruptIfFading
+    call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
     ld a, $02
     ld (_RAM_FFFF_), a
     ld a, $01
-    call _LABEL_12E2_
+    call loadTextTilesWithColor
     ld a, $0F
     call _LABEL_12EB_
     call _LABEL_1317_
@@ -273,11 +273,11 @@ _LABEL_1DEF_:
 
 ; 23rd entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1E20_:
-    call _LABEL_12C8_
-    call _LABEL_12D1_
+    call waitForInterruptIfFading
+    call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
     ld a, $02
     ld (_RAM_FFFF_), a
-    call _LABEL_12E0_
+    call loadTextTilesBlue
     ld de, $38DE
     ld hl, _DATA_1E71_
     ld bc, $0008
@@ -314,12 +314,12 @@ _DATA_1E71_:
 
 ; 13th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_1E79_:
-    call _LABEL_12C8_
-    call _LABEL_12D1_
+    call waitForInterruptIfFading
+    call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
     ld a, $02
     ld (_RAM_FFFF_), a
     ld a, $01
-    call _LABEL_12E2_
+    call loadTextTilesWithColor
     call _LABEL_1317_
     call _LABEL_136D_
     xor a
@@ -387,7 +387,7 @@ _LABEL_1F15_:
 +:
     xor a
     ld (_RAM_C008_), a
-    ld a, (_RAM_C6B2_)
+    ld a, (optMatches_RAM_C6B2_)
     add a, $02
     ld d, a
     ld a, (_RAM_C6CD_)
@@ -439,7 +439,7 @@ _LABEL_1F15_:
 _LABEL_1FA9_:
     xor a
     ld (_RAM_C009_), a
-    ld a, (_RAM_C6B2_)
+    ld a, (optMatches_RAM_C6B2_)
     add a, $02
     ld d, a
     ld a, (_RAM_C6CC_)
@@ -502,7 +502,7 @@ _LABEL_2027_:
 +:
     xor a
     ld (_RAM_C008_), a
-    ld a, (_RAM_C6B2_)
+    ld a, (optMatches_RAM_C6B2_)
     add a, $02
     ld d, a
     ld a, (_RAM_C6CC_)
@@ -513,7 +513,7 @@ _LABEL_2027_:
     jr nc, _LABEL_2091_
     xor a
     ld (_RAM_C009_), a
-    call _LABEL_5EA_
+    call clearEntitiesAlt_LABEL_5EA_
     call _LABEL_1317_
     call _LABEL_136D_
     ld a, $02
@@ -544,12 +544,12 @@ _LABEL_2091_:
 
 ; 14th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_209C_:
-    call _LABEL_12C8_
-    call _LABEL_12D1_
+    call waitForInterruptIfFading
+    call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
     ld a, $02
     ld (_RAM_FFFF_), a
     ld a, $01
-    call _LABEL_12E2_
+    call loadTextTilesWithColor
     ld a, $0F
     call _LABEL_12EB_
     call _LABEL_1317_
@@ -785,7 +785,7 @@ _LABEL_22AE_:
     xor a
     ld (_RAM_C008_), a
     ld (_RAM_C009_), a
-    call _LABEL_5EA_
+    call clearEntitiesAlt_LABEL_5EA_
     call _LABEL_1317_
     call _LABEL_1399_
     call _LABEL_13F8_
@@ -827,16 +827,16 @@ _LABEL_2334_:
 
 ; 15th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_2346_:
-    call _LABEL_12C8_
-    call _LABEL_12D1_
+    call waitForInterruptIfFading
+    call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
     ld a, $02
     ld (_RAM_FFFF_), a
     ld a, $01
-    call _LABEL_12E2_
+    call loadTextTilesWithColor
     ld a, $0F
     call _LABEL_12EB_
     call _LABEL_1317_
-    ld a, (_RAM_C6AC_)
+    ld a, (optLevel_RAM_C6AC_)
     ld (_RAM_C6A5_), a
     call _LABEL_136D_
     ld hl, _DATA_9F05_
@@ -949,12 +949,12 @@ _LABEL_2444_:
 
 ; 16th entry of Jump Table from 1BB (indexed by var.state)
 _LABEL_2469_:
-    call _LABEL_12C8_
-    call _LABEL_12D1_
+    call waitForInterruptIfFading
+    call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
     ld a, $02
     ld (_RAM_FFFF_), a
     ld a, $01
-    call _LABEL_12E2_
+    call loadTextTilesWithColor
     call _LABEL_1317_
     call _LABEL_1399_
     ld hl, _DATA_83C2_

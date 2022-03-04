@@ -5,7 +5,7 @@ _RAM_C002_ db
 
 .enum $C004 export
 _RAM_C004_ db
-_RAM_C005_ db
+mode_RAM_C005_ db
 _RAM_C006_ db
 _RAM_C007_ db
 _RAM_C008_ db
@@ -228,15 +228,15 @@ _RAM_C6A4_ db
 _RAM_C6A5_ db
 _RAM_C6A6_ db
 _RAM_C6A7_ db
-_RAM_C6A8_ db
-_RAM_C6A9_ dw
-_RAM_C6AB_ db
-_RAM_C6AC_ db
+optDifficulty_RAM_C6A8_ db
+optBlockType_RAM_C6A9_ dw
+optHigh_RAM_C6AB_ db
+optLevel_RAM_C6AC_ db
 _RAM_C6AD_ db
 _RAM_C6AE_ dw
 _RAM_C6B0_ db
 _RAM_C6B1_ db
-_RAM_C6B2_ db
+optMatches_RAM_C6B2_ db
 _RAM_C6B3_ db
 _RAM_C6B4_ db
 _RAM_C6B5_ db
@@ -269,7 +269,7 @@ _RAM_C6D0_ dw
 .ende
 
 .enum $CD00 export
-_RAM_CD00_ db
+nametable_RAM_CD00_ db
 _RAM_CD01_ db
 .ende
 

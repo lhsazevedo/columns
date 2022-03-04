@@ -1,14 +1,14 @@
 state.mainMenu.init:
-    call _LABEL_12C8_
-    call _LABEL_15E3_
-    call _LABEL_12D1_
+    call waitForInterruptIfFading
+    call clearEntities
+    call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
 
+    ; Change slot
     ld a, $02
     ld (_RAM_FFFF_), a
 
-    ; Load text character tiles
     ld a, $01
-    call _LABEL_12E2_
+    call loadTextTilesWithColor
 
     ; Load arrow tiles
     ld hl, _DATA_8000_
@@ -22,34 +22,34 @@ state.mainMenu.init:
     call _LABEL_6D0_
 
     ; TODO: Probably extracting
-    ld de, _RAM_CD00_
+    ld de, nametable_RAM_CD00_
     ld hl, _DATA_86B3_
     call _LABEL_70C_
 
     ; Load title tilemap
-    ld hl, _RAM_CD00_
+    ld hl, nametable_RAM_CD00_
     ld de, $3844
     ld bc, $0A38
     call _LABEL_648_
 
     ; TODO: Probably extracting
-    ld de, _RAM_CD00_
+    ld de, nametable_RAM_CD00_
     ld hl, _DATA_87FD_
     call _LABEL_70C_
 
     ; Draw left statue
-    ld hl, _RAM_CD00_
+    ld hl, nametable_RAM_CD00_
     ld de, $3AC2
     ld bc, $0C08
     call _LABEL_648_
 
     ; TODO: Probably extracting
-    ld de, _RAM_CD00_
+    ld de, nametable_RAM_CD00_
     ld hl, _DATA_8846_
     call _LABEL_70C_
 
     ; Draw right statue
-    ld hl, _RAM_CD00_
+    ld hl, nametable_RAM_CD00_
     ld de, $3AF6
     ld bc, $0C08
     call _LABEL_648_
@@ -77,7 +77,7 @@ state.mainMenu.init:
     ld de, $3CDA
     call _LABEL_2885_
 
-    ; Draw copyright stuff
+    ; Draw copyright text
     ld a, $04
     ld de, $3DE6
     call _LABEL_2885_
@@ -162,7 +162,7 @@ state.mainMenu.update:
     ld de, _DATA_1759_
     add hl, de
     ld a, (hl)
-    ld (_RAM_C005_), a
+    ld (mode_RAM_C005_), a
     ld a, $06
     ld (var.state), a
     jp waitInterrupt_LABEL_181_

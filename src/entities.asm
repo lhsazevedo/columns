@@ -3,7 +3,7 @@ entities.arrow.init:
     ld (ix+2), $01
     ld (ix+3), $01
 
-    ; Option
+    ; Initial option
     ld (ix+14), $00
 
     ; Options count
@@ -15,7 +15,7 @@ entities.arrow.init:
     ; X position
     ld (ix+9), $50
 
-    ; Set next updater
+    ; Set updater
     ld (ix+0), <entities.arrow.update
     ld (ix+1), >entities.arrow.update
 
@@ -27,7 +27,7 @@ entities.arrow.update:
     and JOY_UP | JOY_DOWN
     ret z
 
-    ; If skipped: Arrow doesnt move
+    ; TODO: If skipped: Arrow doesnt move
     call _LABEL_341A_
 
     ; y = $78 + option * 16
@@ -40,22 +40,36 @@ entities.arrow.update:
     ld (ix+6), a
     ret
 
-_LABEL_2FF9_:
+entities.optionsArrow.init:
     ld (ix+2), $01
     ld (ix+3), $01
+
+    ; Initial option
     ld (ix+14), $00
+
+    ; Options count
     ld (ix+15), $02
+
+    ; Y position
     ld (ix+6), $88
+
+    ; X position
     ld (ix+9), $50
-    ld (ix+0), <_LABEL_301A_
-    ld (ix+1), >_LABEL_301A_
+
+    ; Set updater
+    ld (ix+0), <entities.optionsArrow.update
+    ld (ix+1), >entities.optionsArrow.update
     ret
 
-_LABEL_301A_:
+entities.optionsArrow.update:
     ld a, (var.input.player1.debounced)
-    and $03
+    and JOY_UP | JOY_DOWN
     ret z
+
+    ; TODO: If skipped: Arrow doesnt move
     call _LABEL_341A_
+
+    ; y = $88 + option * 16
     ld a, (ix+14)
     add a, a
     add a, a
@@ -77,7 +91,7 @@ _LABEL_3030_:
     call _LABEL_3444_
     call _LABEL_3459_
     call _LABEL_349D_
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 0, a
     jp z, _LABEL_34BB_
     jp _LABEL_34D6_
@@ -117,7 +131,7 @@ _LABEL_3064_:
     ret
 
 _LABEL_30A1_:
-    ld hl, _RAM_C6A8_
+    ld hl, optDifficulty_RAM_C6A8_
     ld a, (var.input.player1.debounced)
     bit 2, a
     jr z, ++
@@ -139,7 +153,7 @@ _LABEL_30A1_:
     jp _LABEL_3459_
 
 _LABEL_30C6_:
-    ld hl, _RAM_C6A9_
+    ld hl, optBlockType_RAM_C6A9_
     ld a, (var.input.player1.debounced)
     bit 2, a
     jr z, +
@@ -157,10 +171,10 @@ _LABEL_30C6_:
     jp _LABEL_349D_
 
 _LABEL_30E5_:
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 0, a
     jr nz, ++
-    ld hl, _RAM_C6AC_
+    ld hl, optLevel_RAM_C6AC_
     ld a, (var.input.player1.debounced)
     bit 2, a
     jr z, +
@@ -178,7 +192,7 @@ _LABEL_30E5_:
     jp _LABEL_34BB_
 
 ++:
-    ld hl, _RAM_C6AB_
+    ld hl, optHigh_RAM_C6AB_
     ld a, (var.input.player1.debounced)
     bit 2, a
     jr z, +
@@ -207,7 +221,7 @@ _LABEL_312A_:
     call _LABEL_3444_
     call _LABEL_3459_
     call _LABEL_349D_
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 0, a
     jr nz, +
     call _LABEL_34BB_
@@ -257,10 +271,10 @@ _DATA_31AB_:
     .db $70 $78 $80 $90 $A0
     
 +:
-    ld a, (_RAM_C005_) ; _RAM_C005_ = $C005
+    ld a, (mode_RAM_C005_) ; mode_RAM_C005_ = $C005
     bit 0, a
     jr nz, ++
-    ld hl, _RAM_C6B2_ ; _RAM_C6B2_ = $C6B2
+    ld hl, optMatches_RAM_C6B2_ ; optMatches_RAM_C6B2_ = $C6B2
     ld a, (var.input.player1.debounced) ; var.input.player1.debounced = $C00C
     bit 2, a
     jr z, +
@@ -302,12 +316,13 @@ _LABEL_31F5_:
     ld (ix+15), $04
     ld (ix+6), $A0
     ld (ix+9), $E0
+    ; TODO: Entity label 3229
     ld (ix+0), $29
     ld (ix+1), $32
     call _LABEL_3514_
     call _LABEL_351F_
     call _LABEL_3559_
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 0, a
     jp z, _LABEL_3577_
     jp _LABEL_3588_
@@ -330,6 +345,7 @@ _LABEL_31F5_:
 _LABEL_32F7_:
     ld (ix+2), $01
     ld (ix+3), $02
+    ; TODO: Entity label 3307
     ld (ix+0), $07
     ld (ix+1), $33
     ld a, (_RAM_C002_)
@@ -352,6 +368,7 @@ _LABEL_32F7_:
 _LABEL_332D_:
     ld (ix+2), $01
     ld (ix+3), $03
+    ; TODO: Entity label 333D
     ld (ix+0), $3D
     ld (ix+1), $33
     ld a, (_RAM_C002_)
@@ -374,6 +391,7 @@ _LABEL_332D_:
 _LABEL_3363_:
     ld (ix+2), $01
     ld (ix+3), $04
+    ; TODO: Entity label 3373
     ld (ix+0), $73
     ld (ix+1), $33
     ld a, (_RAM_C002_)
@@ -416,6 +434,7 @@ _LABEL_33B5_:
     ld (ix+14), $04
     ld (ix+6), $3F
     ld (ix+2), $01
+    ; TODO: Entity label 33CE
     ld (ix+0), $CE
     ld (ix+1), $33
     ret
@@ -431,6 +450,7 @@ _LABEL_33CE_:
     dec (ix+14)
     ret nz
     ld (ix+14), $28
+    ; TODO: Entity label 33EE
     ld (ix+0), $EE
     ld (ix+1), $33
     ret
@@ -439,6 +459,7 @@ _LABEL_33EE_:
     dec (ix+14)
     ret nz
     ld (ix+14), $04
+    ; TODO: Entity label 33FF
     ld (ix+0), $FF
     ld (ix+1), $33
     ret
@@ -452,6 +473,7 @@ _LABEL_33FF_:
     ld (ix+9), a
     dec (ix+14)
     ret nz
+    ; TODO: Entity label 2FB7
     ld (ix+0), $B7
     ld (ix+1), $2F
     ret
@@ -494,24 +516,24 @@ _LABEL_341A_:
 
 _LABEL_3444_:
     ld de, $3BA6
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $02
     jr z, +
     ld de, $3B88
 +:
-    ld a, (_RAM_C6A8_)
+    ld a, (optDifficulty_RAM_C6A8_)
     add a, $0D
     jp _LABEL_2885_
 
 _LABEL_3459_:
     ld de, $3C26
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     jr z, +
     ld de, $3BC8
 +:
     rst $08 ; setVdpAddress
-    ld a, (_RAM_C6A8_)
+    ld a, (optDifficulty_RAM_C6A8_)
     add a, a
     add a, a
     add a, a
@@ -539,7 +561,7 @@ _DATA_3485_:
 .db $01 $02 $03 $04 $05 $06 $00 $00
 
 _LABEL_349D_:
-    ld hl, (_RAM_C6A9_)
+    ld hl, (optBlockType_RAM_C6A9_)
     ld h, $00
     add hl, hl
     ld de, _DATA_34B1_
@@ -551,19 +573,19 @@ _LABEL_349D_:
     ld de, $2020
     jp _LABEL_6D0_
 
-; Pointer Table from 34B1 to 34BA (5 entries, indexed by _RAM_C6A9_)
+; Pointer Table from 34B1 to 34BA (5 entries, indexed by optBlockType_RAM_C6A9_)
 _DATA_34B1_:
 .dw _DATA_9A27_ _DATA_9AE9_ _DATA_9B95_ _DATA_9D97_ _DATA_9E3F_
 
 _LABEL_34BB_:
     ld de, $3CAA
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $02
     jr z, +
     ld de, $3C0E
 +:
     rst $08 ; setVdpAddress
-    ld a, (_RAM_C6AC_)
+    ld a, (optLevel_RAM_C6AC_)
     add a, $D6
     out (Port_VDPData), a
     xor a
@@ -575,13 +597,13 @@ _LABEL_34BB_:
 
 _LABEL_34D6_:
     ld de, $3CAA
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $02
     jr z, +
     ld de, $3C0E
 +:
     rst $08 ; setVdpAddress
-    ld a, (_RAM_C6AB_)
+    ld a, (optHigh_RAM_C6AB_)
     add a, $D8
     out (Port_VDPData), a
     xor a
@@ -594,7 +616,7 @@ _LABEL_34D6_:
 _LABEL_34F1_:
     ld de, $3C98
     rst $08 ; setVdpAddress
-    ld a, (_RAM_C6B2_)
+    ld a, (optMatches_RAM_C6B2_)
     add a, a
     add a, $D9
     out (Port_VDPData), a
@@ -716,9 +738,10 @@ _LABEL_3599_:
     ld (ix+6), $20
     ld (ix+25), $3C
     ld (ix+31), $00
+    ; TODO: Entity label 35E7
     ld (ix+0), $E7
     ld (ix+1), $35
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     ld a, $70
     jr z, +
@@ -732,14 +755,14 @@ _LABEL_35E7_:
     ret p
     ld (ix+2), $00
     call _LABEL_43D3_
-    ld (ix+0), $36
-    ld (ix+1), $36
-    ld a, (_RAM_C005_)
+    ld (ix+0), <initFallingBlock_LABEL_3636_
+    ld (ix+1), >initFallingBlock_LABEL_3636_
+    ld a, (mode_RAM_C005_)
     bit 0, a
     ret z
     ld a, $01
     ld (_RAM_C6C2_), a
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     ret nz
     ld a, $01
@@ -747,7 +770,7 @@ _LABEL_35E7_:
     ret
 
 _LABEL_3611_:
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     ld a, $70
     jr z, +
@@ -763,7 +786,7 @@ _LABEL_3611_:
 _DATA_362C_:
 .db $04 $05 $06 $07 $09 $0C $10 $20 $60 $FF
 
-_LABEL_3636_:
+initFallingBlock_LABEL_3636_:
     ld hl, $C41B
     bit 0, (ix+31)
     jp nz, _LABEL_3C04_
@@ -795,7 +818,7 @@ _LABEL_3636_:
     ld (_RAM_C699_), a
     ld a, $93
     ld (var.audio.request), a
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     jr nz, +
     ld hl, var.pallete.shouldUpdate
@@ -825,8 +848,8 @@ _LABEL_3636_:
     jp nz, _LABEL_36F0_
     ld a, (_RAM_C699_)
     call _LABEL_4514_
-    ld (ix+0), $F9
-    ld (ix+1), $36
+    ld (ix+0), <updateFallingBlock_LABEL_36F9_
+    ld (ix+1), >updateFallingBlock_LABEL_36F9_
     ld hl, (_RAM_C699_)
     ld h, $00
     ld de, _DATA_362C_
@@ -834,7 +857,7 @@ _LABEL_3636_:
     ld a, (hl)
     ld (_RAM_DD01_), a
     ld (_RAM_DD02_), a
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     or a
     jp z, _LABEL_4464_
     ld hl, _RAM_C441_
@@ -861,7 +884,7 @@ _LABEL_36F0_:
     ld (_RAM_C008_), a
     ret
 
-_LABEL_36F9_:
+updateFallingBlock_LABEL_36F9_:
     ld a, (_RAM_C002_)
     or a
     jp nz, _LABEL_3611_
@@ -928,6 +951,7 @@ _LABEL_36F9_:
 +++++:
     call _LABEL_4464_
     ld (ix+25), $14
+    ; TODO: Entity label 37A0
     ld (ix+0), $A0
     ld (ix+1), $37
     ret
@@ -935,6 +959,7 @@ _LABEL_36F9_:
 _LABEL_378F_:
     ld (ix+14), $00
     ld (ix+25), $10
+    ; TODO: Entity label 3A3C
     ld (ix+0), $3C
     ld (ix+1), $3A
     ret
@@ -974,8 +999,8 @@ _LABEL_37A0_:
     or a
     ret nz
     ld (ix+25), $00
-    ld (ix+0), $F9
-    ld (ix+1), $36
+    ld (ix+0), <updateFallingBlock_LABEL_36F9_
+    ld (ix+1), >updateFallingBlock_LABEL_36F9_
     ret
 
 _LABEL_37F7_:
@@ -986,6 +1011,7 @@ _LABEL_37F7_:
     ld (hl), $00
     call ldi128
     call _LABEL_123D_
+    ; TODO: Entity label 3816
     ld (ix+0), $16
     ld (ix+1), $38
     ret
@@ -997,6 +1023,7 @@ _LABEL_3816_:
     call _LABEL_2A27_
     ld a, (_RAM_C6BB_)
     ld (ix+28), a
+    ; TODO: Entity label 3831
     ld (ix+0), $31
     ld (ix+1), $38
     ret
@@ -1009,6 +1036,7 @@ _LABEL_3831_:
     ld a, (_RAM_C6BB_)
     add a, (ix+28)
     ld (ix+28), a
+    ; TODO: Entity label 384F
     ld (ix+0), $4F
     ld (ix+1), $38
     ret
@@ -1021,6 +1049,7 @@ _LABEL_384F_:
     ld a, (_RAM_C6BB_)
     add a, (ix+28)
     ld (ix+28), a
+    ; TODO: Entity label 386D
     ld (ix+0), $6D
     ld (ix+1), $38
     ret
@@ -1033,6 +1062,7 @@ _LABEL_386D_:
     ld a, (_RAM_C6BB_)
     add a, (ix+28)
     ld (ix+28), a
+    ; TODO: Entity label 388B
     ld (ix+0), $8B
     ld (ix+1), $38
     ret
@@ -1050,10 +1080,11 @@ _LABEL_388B_:
     call _LABEL_2A91_
     ld (ix+28), l
     ld (ix+29), h
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $03
     call z, _LABEL_452A_
     ld (ix+25), $2F
+    ; TODO: Entity label 392B
     ld (ix+0), $2B
     ld (ix+1), $39
     ret
@@ -1063,6 +1094,7 @@ _LABEL_388B_:
     or a
     call nz, _LABEL_2B3E_
     ld (ix+25), $05
+    ; TODO: Entity label 38EF
     ld (ix+0), $EF
     ld (ix+1), $38
     ret
@@ -1073,6 +1105,7 @@ _LABEL_38D3_:
     ld (ix+28), $00
     ld (ix+29), $00
     ld (ix+25), $2F
+    ; TODO: Entity label 392B
     ld (ix+0), $2B
     ld (ix+1), $39
     ret
@@ -1080,9 +1113,9 @@ _LABEL_38D3_:
 _LABEL_38EF_:
     dec (ix+25)
     ret p
-    ld (ix+0), $36
-    ld (ix+1), $36
-    ld a, (_RAM_C005_)
+    ld (ix+0), <initFallingBlock_LABEL_3636_
+    ld (ix+1), >initFallingBlock_LABEL_3636_
+    ld a, (mode_RAM_C005_)
     and $04
     ret z
     ld a, (ix+31)
@@ -1094,7 +1127,7 @@ _LABEL_38EF_:
     ld hl, _DATA_3928_
     add hl, de
     ld de, _RAM_C026_
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 0, a
     jr z, +
     ld de, _RAM_C02D_
@@ -1124,6 +1157,7 @@ _LABEL_392B_:
 +:
     dec (ix+25)
     ret p
+    ; TODO: Entity label 3954
     ld (ix+0), $54
     ld (ix+1), $39
     ret
@@ -1135,7 +1169,7 @@ _LABEL_3954_:
     ld hl, (_RAM_C697_)
     add hl, bc
     ld (_RAM_C697_), hl
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $03
     jr nz, ++
     ld hl, var.pallete.shouldUpdate
@@ -1146,7 +1180,7 @@ _LABEL_3954_:
     ld hl, (_RAM_C6A3_)
     add hl, bc
     ld (_RAM_C6A3_), hl
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $03
     jr nz, ++
     ld hl, var.palette._RAM_C022_
@@ -1163,6 +1197,7 @@ _LABEL_3954_:
     ld a, $90
     ld (var.audio.request), a
     ld (ix+25), $0B
+    ; TODO: Entity label 39A6
     ld (ix+0), $A6
     ld (ix+1), $39
     ret
@@ -1196,6 +1231,7 @@ _DATA_39D0_:
 
 +:
     ld (ix+25), $10
+    ; TODO: Entity label 39E9
     ld (ix+0), $E9
     ld (ix+1), $39
     ret
@@ -1203,7 +1239,7 @@ _DATA_39D0_:
 _LABEL_39E9_:
     dec (ix+25)
     ret p
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $03
     jr nz, ++
     ld e, (ix+28)
@@ -1233,6 +1269,7 @@ _LABEL_39E9_:
     ld hl, _RAM_C4A1_
     call _LABEL_2AF6_
     inc (ix+27)
+    ; TODO: Entity label 37FF
     ld (ix+0), $FF
     ld (ix+1), $37
     ret
@@ -1251,7 +1288,7 @@ _LABEL_39E9_:
 _LABEL_3AC4_:
     ld (ix+3), $17
     ld (ix+6), $54
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     ld a, $68
     jr z, +
@@ -1264,19 +1301,23 @@ _LABEL_3ADA_:
     ld (ix+25), $16
     ld (ix+16), $A1
     ld (ix+17), $C4
+    ; TODO: Entity label 3AF7
     ld (ix+0), $F7
     ld (ix+1), $3A
     ret
 
 ; Data from 3AF7 to 3B1A (36 bytes)
 .db $DD $7E $0E $B7 $28 $04 $DD $35 $0E $C9 $CD $81 $45 $F0 $DD $36
-.db $19 $C0 $DD $36 $00 $11 $DD $36 $01 $3B $DD $35 $19 $C0 $3E $01
+.db $19 $C0 $DD
+
+_DATA_3B0A_:
+.db $36 $00 $11 $DD $36 $01 $3B $DD $35 $19 $C0 $3E $01
 .db $32 $08 $C0 $C9
 
 _LABEL_3B1B_:
     ld (ix+3), $18
     ld (ix+6), $48
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     ld a, $68
     jr z, +
@@ -1323,9 +1364,10 @@ _LABEL_3B74_:
     ld (ix+6), $20
     ld (ix+25), $3C
     ld (ix+31), $01
+    ; TODO: Entity label 3BAE
     ld (ix+0), $AE
     ld (ix+1), $3B
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     ld a, $70
     jr z, +
@@ -1372,7 +1414,7 @@ _LABEL_3C04_:
     ld (_RAM_C6A5_), a
     ld a, $93
     ld (var.audio.request), a
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     jr nz, +
     ld hl, var.palette._RAM_C022_
@@ -1402,13 +1444,14 @@ _LABEL_3C04_:
     jp nz, +
     ld a, (_RAM_C6A5_)
     call _LABEL_4514_
+    ; TODO: Entity label 3C9E
     ld (ix+0), $9E
     ld (ix+1), $3C
     jp _LABEL_4464_
 
 +:
     call _LABEL_4464_
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 2, a
     jr nz, +
     ld a, $01
@@ -1477,6 +1520,7 @@ _LABEL_3FAE_:
     ld (ix+25), $16
     ld (ix+16), $E9
     ld (ix+17), $C5
+    ; TODO: Entity label 3FCB
     ld (ix+0), $CB
     ld (ix+1), $3F
     ret
@@ -1623,7 +1667,7 @@ _LABEL_43B4_:
     jr nc, _LABEL_43B4_
     inc a
     ex af, af'
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     jr nz, +
     ex af, af'
@@ -1644,11 +1688,11 @@ _LABEL_43D3_:
     ld a, (_RAM_C006_)
     or a
     jr nz, _LABEL_4426_
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $07
     jr z, ++
 -:
-    ld a, (_RAM_C6A8_)
+    ld a, (optDifficulty_RAM_C6A8_)
     bit 0, (ix+31)
     jr z, +
     ld a, (_RAM_C6AD_)
@@ -1734,11 +1778,11 @@ _LABEL_447C_:
 _LABEL_448C_:
     ld hl, $0040
     ld de, $38D6
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     jr nz, _LABEL_44B4_
     ld de, $38D2
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $04
     jr z, _LABEL_44B4_
     exx
@@ -1795,11 +1839,11 @@ _LABEL_44BF_:
 _LABEL_44E9_:
     ld hl, $0040
     ld de, $38E8
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     jr nz, _LABEL_44B4_
     ld de, $38EC
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     and $04
     jr z, _LABEL_44B4_
     exx

@@ -125,7 +125,7 @@ _LABEL_282_:
     or $40
     out (Port_VDPAddress), a
     exx
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 0, a
     ld a, $19
     jr z, +

@@ -145,4 +145,5 @@ ldi4:
     ldi
     ldi
     ldi
+return:
     ret

@@ -158,11 +158,11 @@ init:
     ld (_RAM_C001_), a
 
     ld a, $01
-    ld (_RAM_C6A8_), a
+    ld (optDifficulty_RAM_C6A8_), a
     ld (_RAM_C6AD_), a
 
     ld a, $03
-    ld (_RAM_C6AB_), a
+    ld (optHigh_RAM_C6AB_), a
     ld (_RAM_C6B0_), a
 
 reset:
@@ -175,7 +175,7 @@ reset:
     xor a
     ld (var.previousState), a
     ld (var.state), a
-    ld (_RAM_C005_), a
+    ld (mode_RAM_C005_), a
     ld (_RAM_C002_), a
     ld (_RAM_C006_), a
     ld (_RAM_C6C2_), a
@@ -195,7 +195,7 @@ reset:
     call clearFilteredPalette
 
     ; TODO: Clear VRAM and more RAM
-    call _LABEL_5C6_
+    call clearVram_LABEL_5C6_
 
     ; Unnecessary reset
     ld a, $00
@@ -368,7 +368,7 @@ updatersPointers:
 .INCLUDE "updateEntities.asm"
 .INCLUDE "fade.asm"
 
-_LABEL_5C6_:
+clearVram_LABEL_5C6_:
     ; TODO: Clear VRAM from $00 to $1F
     ld de, $0000
     ld hl, $0000
@@ -387,7 +387,7 @@ _LABEL_5C6_:
     ld bc, $0380
     call _LABEL_62E_
 
-_LABEL_5EA_:
+clearEntitiesAlt_LABEL_5EA_:
     ; TODO: Clear RAM from $C100 to $C300 (512 bytes)
     ld hl, v_entities
     ld de, v_entities + 1
@@ -464,24 +464,24 @@ _LABEL_648_:
     djnz _LABEL_648_
     ret
 
-_LABEL_65D_:
+copyAreaToNametable_LABEL_65D_:
     rst $08 ; setVdpAddress
     push bc
     ld b, c
     ld c, Port_VDPData
--:
-    outi
-    jr +
+    @loop:
+        outi
+        jr @endif
 
-+:
-    outi
-    jr nz, -
+        @endif:
+        outi
+    jr nz, @loop
     ex de, hl
     ld bc, $0040
     add hl, bc
     ex de, hl
     pop bc
-    djnz _LABEL_65D_
+    djnz copyAreaToNametable_LABEL_65D_
     ret
 
 ; Unused
@@ -759,24 +759,25 @@ _LABEL_12A9_:
     pop hl
     ret
 
-_LABEL_12C8_:
+waitForInterruptIfFading:
     ld a, (var.fade.state)
     or a
     ret z
     pop hl
     jp waitInterrupt_LABEL_181_
 
-_LABEL_12D1_:
+clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_:
+    ; TODO
     call clearFilteredPalette
     ld a, $01
     ld (_RAM_C018_), a
     call waitInterrupt_LABEL_181_
     di
-    jp _LABEL_5C6_
+    jp clearVram_LABEL_5C6_
 
-_LABEL_12E0_:
+loadTextTilesBlue:
     ld a, $0F
-_LABEL_12E2_:
+loadTextTilesWithColor:
     ld de, $1AC0
     ld hl, _DATA_8034_
     jp _LABEL_746_
@@ -789,8 +790,8 @@ _LABEL_12EB_:
 ; Data from 12F4 to 12FC (9 bytes)
 .db $11 $00 $2F $21 $7E $81 $C3 $46 $07
 
-_LABEL_12FD_:
-    ld hl, _RAM_CD00_
+clearRam_LABEL_12FD_:
+    ld hl, nametable_RAM_CD00_
     ld de, _RAM_CD01_
     ld (hl), $00
     call ldi128
@@ -801,7 +802,7 @@ _LABEL_12FD_:
     jp ldi128
 
 _LABEL_1317_:
-    ld a, (_RAM_C6AC_)
+    ld a, (optLevel_RAM_C6AC_)
     ld (_RAM_C699_), a
     ld a, (_RAM_C6B1_)
     ld (_RAM_C6A5_), a
@@ -868,7 +869,7 @@ _LABEL_1399_:
     ld hl, $C428
     add hl, de
     ex de, hl
-    ld a, (_RAM_C6A8_)
+    ld a, (optDifficulty_RAM_C6A8_)
     add a, a
     ld c, a
     ld b, $00
@@ -924,7 +925,7 @@ _LABEL_13F8_:
 .db $36 $FF $21 $60 $C5 $11 $68 $C5 $C9 $21 $EF $C5 $11 $F0 $C5 $CD
 .db $5B $12 $C9
 
-; Pointer Table from 1457 to 145C (3 entries, indexed by _RAM_C6A8_)
+; Pointer Table from 1457 to 145C (3 entries, indexed by optDifficulty_RAM_C6A8_)
 _DATA_1457_:
 .dw _DATA_1463_ _DATA_14A3_ _DATA_14E3_
 
@@ -932,7 +933,7 @@ _DATA_1457_:
 _DATA_145D_:
 .dw _DATA_1523_ _DATA_1563_ _DATA_15A3_
 
-; 1st entry of Pointer Table from 1457 (indexed by _RAM_C6A8_)
+; 1st entry of Pointer Table from 1457 (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 1463 to 14A2 (64 bytes)
 _DATA_1463_:
 .db $FF $01 $02 $03 $04 $01 $02 $FF $FF $04 $03 $01 $02 $04 $03 $FF
@@ -940,7 +941,7 @@ _DATA_1463_:
 .db $FF $01 $02 $03 $04 $01 $02 $FF $FF $01 $04 $01 $02 $03 $02 $FF
 .db $FF $03 $02 $03 $04 $01 $04 $FF $FF $03 $04 $01 $02 $03 $04 $FF
 
-; 2nd entry of Pointer Table from 1457 (indexed by _RAM_C6A8_)
+; 2nd entry of Pointer Table from 1457 (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 14A3 to 14E2 (64 bytes)
 _DATA_14A3_:
 .db $FF $01 $02 $03 $04 $01 $05 $FF $FF $02 $04 $05 $02 $03 $03 $FF
@@ -948,7 +949,7 @@ _DATA_14A3_:
 .db $FF $01 $02 $03 $05 $01 $02 $FF $FF $03 $05 $01 $01 $03 $04 $FF
 .db $FF $01 $02 $03 $04 $05 $02 $FF $FF $05 $04 $01 $02 $03 $04 $FF
 
-; 3rd entry of Pointer Table from 1457 (indexed by _RAM_C6A8_)
+; 3rd entry of Pointer Table from 1457 (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 14E3 to 1522 (64 bytes)
 _DATA_14E3_:
 .db $FF $01 $02 $03 $04 $05 $06 $FF $FF $04 $03 $05 $06 $04 $03 $FF
@@ -980,7 +981,7 @@ _DATA_15A3_:
 .db $FF $0B $0C $07 $08 $09 $0A $FF $FF $09 $08 $09 $0C $0B $08 $FF
 .db $FF $07 $0B $0A $07 $09 $0C $FF $FF $09 $0A $0B $0C $07 $08 $FF
 
-_LABEL_15E3_:
+clearEntities:
     ld hl, v_entities
     ld de, v_entities + 1
     ld (hl), $00
@@ -1320,7 +1321,7 @@ _LABEL_289D_:
     ld c, a
     ex af, af'
     ld b, $00
-    ld hl, $28BF
+    ld hl, _DATA_28BF_
     add hl, bc
     add hl, bc
     ld a, (hl)
@@ -1331,7 +1332,7 @@ _LABEL_289D_:
     ld b, $00
     inc hl
     push hl
-    ld hl, $126B
+    ld hl, return
     xor a
     sbc hl, bc
     sbc hl, bc
@@ -1341,112 +1342,129 @@ _LABEL_289D_:
     ld c, $BE
     jp (iy)
 
-; Pointer Table from 28BF to 28E6 (20 entries, indexed by _RAM_C6A8_)
+; Pointer Table from 28BF to 28E6 (20 entries, indexed by optDifficulty_RAM_C6A8_)
 _DATA_28BF_:
-.dw _DATA_28E7_ _DATA_290C_ _DATA_291D_ _DATA_292A_ _DATA_293B_ _DATA_2952_ _DATA_2969_ _DATA_297A_
-.dw _DATA_2985_ _DATA_2994_ _DATA_29A9_ _DATA_29B6_ _DATA_29C1_ _DATA_29CA_ _DATA_29D7_ _DATA_29E4_
-.dw _DATA_29F1_ _DATA_2A00_ _DATA_2A1B_ _DATA_2A24_
+.dw _DATA_28E7_
+.dw _DATA_290C_
+.dw _DATA_291D_
+.dw _DATA_292A_
+.dw _DATA_293B_
+.dw _DATA_2952_
+.dw _DATA_2969_
+.dw _DATA_297A_
+.dw _DATA_2985_
+.dw _DATA_2994_
+.dw _DATA_29A9_
+.dw _DATA_29B6_
+.dw _DATA_29C1_
+.dw _DATA_29CA_
+.dw _DATA_29D7_
+.dw _DATA_29E4_
+.dw _DATA_29F1_
+.dw _DATA_2A00_
+.dw _DATA_2A1B_
+.dw _DATA_2A24_
 
-; 1st entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 1st entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 28E7 to 290B (37 bytes)
 _DATA_28E7_:
 .db $24 $EF $00 $F1 $00 $E4 $00 $F2 $00 $F2 $00 $00 $00 $F2 $00 $F3
 .db $00 $E0 $00 $F1 $00 $F3 $00 $00 $00 $E1 $00 $F4 $00 $F3 $00 $F3
 .db $00 $EE $00 $ED $00
 
-; 2nd entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 2nd entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 290C to 291C (17 bytes)
 _DATA_290C_:
 .db $10 $D7 $00 $00 $00 $EF $00 $EB $00 $E0 $00 $F8 $00 $E4 $00 $F1
 .db $00
 
-; 3rd entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 3rd entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 291D to 2929 (13 bytes)
 _DATA_291D_:
 .db $0C $F5 $00 $E4 $00 $F1 $00 $F2 $00 $F4 $00 $F2 $00
 
-; 4th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 4th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 292A to 293A (17 bytes)
 _DATA_292A_:
 .db $10 $D8 $00 $00 $00 $EF $00 $EB $00 $E0 $00 $F8 $00 $E4 $00 $F1
 .db $00
 
-; 5th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 5th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 293B to 2951 (23 bytes)
 _DATA_293B_:
 .db $16 $FE $00 $00 $00 $F2 $00 $E4 $00 $E6 $00 $E0 $00 $00 $00 $D7
 .db $00 $DF $00 $DF $00 $D6 $00
 
-; 6th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 6th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 2952 to 2968 (23 bytes)
 _DATA_2952_:
 .db $16 $F2 $00 $E4 $00 $EB $00 $E4 $00 $E2 $00 $F3 $00 $00 $00 $E6
 .db $00 $E0 $00 $EC $00 $E4 $00
 
-; 7th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 7th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 2969 to 2979 (17 bytes)
 _DATA_2969_:
 .db $10 $EE $00 $F1 $00 $E8 $00 $E6 $00 $E8 $00 $ED $00 $E0 $00 $EB
 .db $00
 
-; 8th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 8th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 297A to 2984 (11 bytes)
 _DATA_297A_:
 .db $0A $E5 $00 $EB $00 $E0 $00 $F2 $00 $E7 $00
 
-; 9th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 9th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 2985 to 2993 (15 bytes)
 _DATA_2985_:
 .db $0E $EE $00 $EF $00 $F3 $00 $E8 $00 $EE $00 $ED $00 $F2 $00
 
-; 10th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 10th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 2994 to 29A8 (21 bytes)
 _DATA_2994_:
 .db $14 $E3 $00 $E8 $00 $E5 $00 $E5 $00 $E8 $00 $E2 $00 $F4 $00 $EB
 .db $00 $F3 $00 $F8 $00
 
-; 11th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 11th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 29A9 to 29B5 (13 bytes)
 _DATA_29A9_:
 .db $0C $E1 $00 $EB $00 $EE $00 $E2 $00 $EA $00 $F2 $00
 
-; 12th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 12th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 29B6 to 29C0 (11 bytes)
 _DATA_29B6_:
 .db $0A $EB $00 $E4 $00 $F5 $00 $E4 $00 $EB $00
 
-; 13th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 13th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 29C1 to 29C9 (9 bytes)
 _DATA_29C1_:
 .db $08 $E4 $00 $F7 $00 $E8 $00 $F3 $00
 
-; 14th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 14th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 29CA to 29D6 (13 bytes)
 _DATA_29CA_:
 .db $0C $00 $00 $E4 $00 $E0 $00 $F2 $00 $F8 $00 $00 $00
 
-; 15th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 15th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 29D7 to 29E3 (13 bytes)
 _DATA_29D7_:
 .db $0C $ED $00 $EE $00 $F1 $00 $EC $00 $E0 $00 $EB $00
 
-; 16th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 16th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 29E4 to 29F0 (13 bytes)
 _DATA_29E4_:
 .db $0C $00 $00 $E7 $00 $E0 $00 $F1 $00 $E3 $00 $00 $00
 
-; 17th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 17th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 29F1 to 29FF (15 bytes)
 _DATA_29F1_:
 .db $0E $EC $00 $E0 $00 $F3 $00 $E2 $00 $E7 $00 $E4 $00 $F2 $00
 
-; 18th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 18th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 2A00 to 2A1A (27 bytes)
 _DATA_2A00_:
 .db $1A $EC $00 $E8 $00 $ED $00 $F4 $00 $F3 $00 $E4 $00 $F2 $00 $00
 .db $00 $EC $00 $E0 $00 $F3 $00 $E2 $00 $E7 $00
 
-; 19th entry of Pointer Table from 28BF (indexed by _RAM_C6A8_)
+; 19th entry of Pointer Table from 28BF (indexed by optDifficulty_RAM_C6A8_)
 ; Data from 2A1B to 2A23 (9 bytes)
 _DATA_2A1B_:
 .db $08 $E7 $00 $E8 $00 $E6 $00 $E7 $00
@@ -1687,7 +1705,7 @@ _LABEL_2B2A_:
 
 _LABEL_2B3E_:
     ex af, af'
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     ret z
     ex af, af'
@@ -2123,7 +2141,7 @@ _LABEL_2DB0_:
     ld a, (_RAM_C002_)
     or a
     ret nz
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 1, a
     jr nz, ++
     ld hl, _RAM_C6C3_
@@ -2139,7 +2157,7 @@ _LABEL_2DB0_:
     jr -
 
 +:
-    ld a, (_RAM_C005_)
+    ld a, (mode_RAM_C005_)
     bit 2, a
     jr nz, +
     ld hl, var.pallete.shouldUpdate
@@ -2566,7 +2584,7 @@ palette_DATA_9A15_:
 .db $10 $10
 .db $00 $03 $38 $04 $33 $0B $0F $00 $0A $30 $02 $0C $22 $15 $2A $3F
 
-; 1st entry of Pointer Table from 34B1 (indexed by _RAM_C6A9_)
+; 1st entry of Pointer Table from 34B1 (indexed by optBlockType_RAM_C6A9_)
 ; Data from 9A27 to 9AE8 (194 bytes)
 _DATA_9A27_:
 .db $04 $9C $18 $3C $3C $34 $0C $0C $3C $18 $24 $5A $7E $3C $24 $5A
@@ -2583,7 +2601,7 @@ _DATA_9A27_:
 .db $3C $7E $FD $F9 $E5 $E5 $C1 $81 $00 $10 $34 $76 $EB $0C $30 $10
 .db $00 $00
 
-; 2nd entry of Pointer Table from 34B1 (indexed by _RAM_C6A9_)
+; 2nd entry of Pointer Table from 34B1 (indexed by optBlockType_RAM_C6A9_)
 ; Data from 9AE9 to 9B94 (172 bytes)
 _DATA_9AE9_:
 .db $04 $90 $FF $81 $BD $A5 $A5 $BD $81 $FF $FE $80 $B8 $A0 $A0 $80
@@ -2598,7 +2616,7 @@ _DATA_9AE9_:
 .db $C2 $FE $00 $01 $01 $03 $05 $85 $3D $01 $FF $FE $FE $03 $FA $8B
 .db $C2 $FE $00 $FF $81 $BD $A5 $A5 $BD $81 $FF $00
 
-; 3rd entry of Pointer Table from 34B1 (indexed by _RAM_C6A9_)
+; 3rd entry of Pointer Table from 34B1 (indexed by optBlockType_RAM_C6A9_)
 ; Data from 9B95 to 9D96 (514 bytes)
 _DATA_9B95_:
 .db $04 $87 $00 $44 $EE $FE $7C $38 $10 $11 $00 $98 $10 $38 $38 $D6
@@ -2635,7 +2653,7 @@ _DATA_9B95_:
 .db $0C $3F $3F $30 $3F $3F $03 $3F $3F $FF $C0 $C0 $CF $C0 $CC $CC
 .db $C0 $00
 
-; 4th entry of Pointer Table from 34B1 (indexed by _RAM_C6A9_)
+; 4th entry of Pointer Table from 34B1 (indexed by optBlockType_RAM_C6A9_)
 ; Data from 9D97 to 9E3E (168 bytes)
 _DATA_9D97_:
 .db $04 $A9 $7E $81 $99 $BD $BD $99 $81 $7E $7E $E1 $E1 $81 $81 $87
@@ -2650,7 +2668,7 @@ _DATA_9D97_:
 .db $7E $02 $F9 $02 $E7 $02 $9F $02 $7E $06 $FF $02 $7E $02 $99 $02
 .db $E7 $02 $99 $81 $7E $08 $FF $00
 
-; 5th entry of Pointer Table from 34B1 (indexed by _RAM_C6A9_)
+; 5th entry of Pointer Table from 34B1 (indexed by optBlockType_RAM_C6A9_)
 ; Data from 9E3F to 9F04 (198 bytes)
 _DATA_9E3F_:
 .db $04 $97 $30 $10 $02 $10 $00 $04 $20 $00 $06 $0C $54 $A4 $48 $14
