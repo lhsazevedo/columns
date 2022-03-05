@@ -1,5 +1,5 @@
 updateEntities:
-    ld ix, v_entities
+    ld ix, var.entities
 
     ld b, $10
     -:

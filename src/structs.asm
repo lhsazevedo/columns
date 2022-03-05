@@ -1,0 +1,35 @@
+.STRUCT Entity
+    handler .dw
+    handler.low db
+    handler.high db
+    byte02 db
+    byte03 db
+    byte04 db
+    byte05 db
+    byte06 db
+    byte07 db
+    byte08 db
+    byte09 db
+    byte0A db
+    byte0B db
+    byte0C db
+    byte0D db
+    byte0E db
+    byte0F db
+    byte10 db
+    byte11 db
+    byte12 db
+    byte13 db
+    byte14 db
+    byte15 db
+    byte16 db
+    byte17 db
+    byte18 db
+    byte19 db
+    byte1A db
+    byte1B db
+    byte1C db
+    byte1D db
+    byte1E db
+    byte1F db
+.ENDST

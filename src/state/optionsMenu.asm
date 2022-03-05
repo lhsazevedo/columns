@@ -40,7 +40,7 @@ _LABEL_1A17_:
     ld de, _RAM_CF56_
     call _LABEL_289D_
     ld hl, _LABEL_3030_
-    ld (v_entities), hl
+    ld (var.entities), hl
 _LABEL_1A45_:
     call waitInterrupt_LABEL_181_
     ld de, $3AC0
@@ -70,7 +70,7 @@ _LABEL_1A5F_:
     ld de, $CF56
     call _LABEL_289D_
     ld hl, _LABEL_3030_
-    ld (v_entities), hl
+    ld (var.entities), hl
     jp _LABEL_1A45_
 
 ; 3rd entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
@@ -94,9 +94,9 @@ _LABEL_1A90_:
     ld de, $CF5C
     call _LABEL_289D_
     ld hl, _LABEL_312A_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_31F5_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     jp _LABEL_1A45_
 
 ; 4th entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
@@ -120,9 +120,9 @@ _LABEL_1ACF_:
     ld de, $CF5C
     call _LABEL_289D_
     ld hl, _LABEL_312A_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_31F5_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     jp _LABEL_1A45_
 
 ; 5th entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
@@ -143,7 +143,7 @@ _LABEL_1B0E_:
     ld de, $CF56
     call _LABEL_289D_
     ld hl, _LABEL_3030_
-    ld (v_entities), hl
+    ld (var.entities), hl
     jp _LABEL_1A45_
 
 ; 6th entry of Jump Table from 1A0B (indexed by mode_RAM_C005_)
@@ -164,13 +164,13 @@ _LABEL_1B3F_:
     ld de, $CF56
     call _LABEL_289D_
     ld hl, _LABEL_3030_
-    ld (v_entities), hl
+    ld (var.entities), hl
     jp _LABEL_1A45_
 
 ; 10th entry of Jump Table from 1BB (indexed by var.state)
 state.optionsMenu.update:
-    ld hl, (v_entities)
-    ld de, (_RAM_C120_)
+    ld hl, (var.entities)
+    ld de, (var.entities.2.handler)
     ld a, l
     or h
     or e

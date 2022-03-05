@@ -128,11 +128,11 @@ _LABEL_1864_:
     ld de, $2400
     call _LABEL_6D0_
     ld hl, _LABEL_2FB7_
-    ld (_RAM_C120_), hl
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.2.handler), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B1B_
-    ld (v_entities), hl
+    ld (var.entities), hl
     jp waitInterrupt_LABEL_18D_
 
 _LABEL_189C_:

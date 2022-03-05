@@ -1876,12 +1876,12 @@ _LABEL_452A_:
     jr z, +
     ld a, $E8
 +:
-    ld (_RAM_C149_), a
-    ld (_RAM_C169_), a
-    ld (_RAM_C189_), a
-    ld (_RAM_C1A9_), a
-    ld (_RAM_C1C9_), a
-    ld hl, _RAM_C1C3_
+    ld (var.entities.3.byte09), a
+    ld (var.entities.4.byte09), a
+    ld (var.entities.5.byte09), a
+    ld (var.entities.6.byte09), a
+    ld (var.entities.7.byte09), a
+    ld hl, var.entities.7.byte03
     ld de, $0020
     exx
     ld hl, _RAM_C6B6_
@@ -1900,15 +1900,15 @@ _LABEL_452A_:
     inc hl
     djnz -
     ld hl, $3399
-    ld (_RAM_C140_), hl
+    ld (var.entities.3.handler), hl
     ld hl, $33A3
-    ld (_RAM_C160_), hl
+    ld (var.entities.4.handler), hl
     ld hl, $33A9
-    ld (_RAM_C180_), hl
+    ld (var.entities.5.handler), hl
     ld hl, $33AF
-    ld (_RAM_C1A0_), hl
+    ld (var.entities.6.handler), hl
     ld hl, $33B5
-    ld (_RAM_C1C0_), hl
+    ld (var.entities.7.handler), hl
     ret
 
 _LABEL_4581_:	

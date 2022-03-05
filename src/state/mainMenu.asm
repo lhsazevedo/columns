@@ -98,7 +98,7 @@ state.mainMenu.init:
 
     ; Spawn arrow
     ld hl, entities.arrow.init
-    ld (v_entities), hl
+    ld (var.entities), hl
 
     ; TODO
     ld a, $02
@@ -157,7 +157,7 @@ state.mainMenu.update:
     jp waitInterrupt_LABEL_181_
 
 @actionPressed:
-    ld hl, (_RAM_C10E_)
+    ld hl, (var.entities.1.byte0E)
     ld h, $00
     ld de, _DATA_1759_
     add hl, de

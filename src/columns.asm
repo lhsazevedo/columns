@@ -22,6 +22,7 @@ BANKS 6
 
 .INCLUDE "constants/sms.asm"
 .INCLUDE "constants/audio.asm"
+.INCLUDE "structs.asm"
 .INCLUDE "variables.asm"
 
 .BANK 0 SLOT 0
@@ -116,8 +117,8 @@ init:
     ldir
 
     ; TODO: Clear entities?
-    ld hl, v_entities
-    ld de, v_entities + 1
+    ld hl, var.entities
+    ld de, var.entities + 1
     ld bc, $0EFF
     ld (hl), $00
     ldir
@@ -389,8 +390,8 @@ clearVram_LABEL_5C6_:
 
 clearEntitiesAlt_LABEL_5EA_:
     ; TODO: Clear RAM from $C100 to $C300 (512 bytes)
-    ld hl, v_entities
-    ld de, v_entities + 1
+    ld hl, var.entities
+    ld de, var.entities + 1
     ld (hl), $00
     call ldi128
     call ldi128
@@ -982,8 +983,8 @@ _DATA_15A3_:
 .db $FF $07 $0B $0A $07 $09 $0C $FF $FF $09 $0A $0B $0C $07 $08 $FF
 
 clearEntities:
-    ld hl, v_entities
-    ld de, v_entities + 1
+    ld hl, var.entities
+    ld de, var.entities + 1
     ld (hl), $00
     call ldi128
     call ldi128
@@ -1047,7 +1048,7 @@ _LABEL_15F7_:
 drawEntities_LABEL_25CC_:
     xor a
     ld (_RAM_C3C0_), a
-    ld ix, v_entities
+    ld ix, var.entities
     ld de, $0020
     ld b, $10
 -:
@@ -1141,124 +1142,124 @@ drawEntities_LABEL_25CC_:
 ; Data from 2658 to 2659 (2 bytes)
 .db $00 $00
 
-; Pointer Table from 265A to 2699 (32 entries, indexed by _RAM_C103_)
+; Pointer Table from 265A to 2699 (32 entries, indexed by var.entities.1.byte03)
 _DATA_265A_:
 .dw _DATA_269A_ _DATA_269E_ _DATA_26B7_ _DATA_26D0_ _DATA_26E9_ _DATA_26F0_ _DATA_26F7_ _DATA_26FE_
 .dw _DATA_2705_ _DATA_270C_ _DATA_2713_ _DATA_271A_ _DATA_2721_ _DATA_2728_ _DATA_272F_ _DATA_2733_
 .dw _DATA_2737_ _DATA_2744_ _DATA_2751_ _DATA_2755_ _DATA_276E_ _DATA_2787_ _DATA_27C4_ _DATA_27FB_
 .dw _DATA_2868_ _DATA_2881_ _DATA_2881_ _DATA_2881_ _DATA_2881_ _DATA_2881_ _DATA_2881_ _DATA_2881_
 
-; 1st entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 1st entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 269A to 269D (4 bytes)
 _DATA_269A_:
 .db $01 $FF $00 $BF
 
-; 2nd entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 2nd entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 269E to 26B6 (25 bytes)
 _DATA_269E_:
 .db $08 $00 $23 $41 $67 $83 $A2 $C9 $E1 $E0 $40 $20 $43 $00 $41 $50
 .db $40 $32 $42 $97 $44 $C5 $41 $1B $43
 
-; 3rd entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 3rd entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 26B7 to 26CF (25 bytes)
 _DATA_26B7_:
 .db $08 $18 $33 $50 $79 $9D $B2 $D1 $EE $33 $43 $E6 $40 $53 $41 $28
 .db $42 $CD $41 $A3 $44 $6A $40 $10 $42
 
-; 4th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 4th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 26D0 to 26E8 (25 bytes)
 _DATA_26D0_:
 .db $08 $02 $28 $3D $63 $7B $A7 $BA $E4 $74 $44 $37 $40 $DD $42 $02
 .db $41 $B9 $43 $FB $42 $51 $44 $A6 $40
 
-; 5th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 5th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 26E9 to 26EF (7 bytes)
 _DATA_26E9_:
 .db $02 $00 $08 $00 $AC $00 $AD
 
-; 6th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 6th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 26F0 to 26F6 (7 bytes)
 _DATA_26F0_:
 .db $02 $00 $08 $00 $AE $00 $AF
 
-; 7th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 7th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 26F7 to 26FD (7 bytes)
 _DATA_26F7_:
 .db $02 $00 $08 $00 $B0 $00 $B1
 
-; 8th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 8th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 26FE to 2704 (7 bytes)
 _DATA_26FE_:
 .db $02 $00 $08 $00 $B2 $00 $B3
 
-; 9th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 9th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2705 to 270B (7 bytes)
 _DATA_2705_:
 .db $02 $00 $08 $00 $B4 $00 $B5
 
-; 10th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 10th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 270C to 2712 (7 bytes)
 _DATA_270C_:
 .db $02 $00 $08 $00 $B6 $00 $B7
 
-; 11th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 11th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2713 to 2719 (7 bytes)
 _DATA_2713_:
 .db $02 $00 $08 $00 $B8 $00 $B9
 
-; 12th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 12th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 271A to 2720 (7 bytes)
 _DATA_271A_:
 .db $02 $00 $08 $00 $BA $00 $BB
 
-; 13th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 13th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2721 to 2727 (7 bytes)
 _DATA_2721_:
 .db $02 $00 $08 $00 $BC $00 $BD
 
-; 14th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 14th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2728 to 272E (7 bytes)
 _DATA_2728_:
 .db $02 $00 $08 $00 $BE $00 $BF
 
-; 15th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 15th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 272F to 2732 (4 bytes)
 _DATA_272F_:
 .db $01 $00 $00 $0E
 
-; 16th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 16th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2733 to 2736 (4 bytes)
 _DATA_2733_:
 .db $01 $00 $00 $14
 
-; 17th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 17th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2737 to 2743 (13 bytes)
 _DATA_2737_:
 .db $04 $FC $FC $04 $04 $FC $15 $04 $16 $FC $17 $04 $18
 
-; 18th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 18th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2744 to 2750 (13 bytes)
 _DATA_2744_:
 .db $04 $FC $FC $04 $04 $FC $19 $04 $1A $FC $1B $04 $1C
 
-; 19th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 19th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2751 to 2754 (4 bytes)
 _DATA_2751_:
 .db $01 $FF $00 $BE
 
-; 20th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 20th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2755 to 276D (25 bytes)
 _DATA_2755_:
 .db $08 $00 $00 $00 $00 $08 $08 $08 $08 $00 $20 $08 $21 $10 $22 $18
 .db $23 $00 $24 $08 $25 $10 $26 $18 $27
 
-; 21st entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 21st entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 276E to 2786 (25 bytes)
 _DATA_276E_:
 .db $08 $00 $00 $00 $00 $08 $08 $08 $08 $00 $28 $08 $29 $10 $2A $18
 .db $2B $00 $2C $08 $2D $10 $2E $18 $2F
 
-; 22nd entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 22nd entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2787 to 27C3 (61 bytes)
 _DATA_2787_:
 .db $14 $00 $00 $00 $00 $00 $08 $08 $08 $08 $08 $10 $10 $10 $10 $10
@@ -1266,7 +1267,7 @@ _DATA_2787_:
 .db $25 $08 $26 $10 $27 $18 $28 $20 $29 $00 $2A $08 $2B $10 $2C $18
 .db $2D $20 $2E $00 $2F $08 $30 $10 $31 $18 $32 $20 $33
 
-; 23rd entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 23rd entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 27C4 to 27FA (55 bytes)
 _DATA_27C4_:
 .db $12 $00 $00 $00 $00 $00 $00 $08 $08 $08 $08 $08 $08 $10 $10 $10
@@ -1274,7 +1275,7 @@ _DATA_27C4_:
 .db $26 $08 $27 $10 $28 $18 $29 $20 $2A $28 $2B $00 $2C $08 $2D $10
 .db $2E $18 $2F $20 $30 $28 $31
 
-; 24th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 24th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 27FB to 2867 (109 bytes)
 _DATA_27FB_:
 .db $24 $00 $00 $00 $00 $00 $00 $08 $08 $08 $08 $08 $08 $10 $10 $10
@@ -1285,13 +1286,13 @@ _DATA_27FB_:
 .db $2F $20 $30 $28 $31 $00 $32 $08 $33 $10 $34 $18 $35 $20 $36 $28
 .db $37 $00 $26 $08 $26 $10 $26 $18 $26 $20 $26 $28 $26
 
-; 25th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 25th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2868 to 2880 (25 bytes)
 _DATA_2868_:
 .db $08 $00 $00 $00 $00 $08 $08 $08 $08 $00 $30 $08 $31 $10 $32 $18
 .db $33 $00 $34 $08 $35 $10 $36 $18 $37
 
-; 26th entry of Pointer Table from 265A (indexed by _RAM_C103_)
+; 26th entry of Pointer Table from 265A (indexed by var.entities.1.byte03)
 ; Data from 2881 to 2884 (4 bytes)
 _DATA_2881_:
 .db $01 $00 $00 $00

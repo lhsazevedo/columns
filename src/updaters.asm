@@ -8,44 +8,60 @@
 _LABEL_1BA6_:
     call waitForInterruptIfFading
     call clearFilteredPalette_WaitInterrupt_ClearVram_LABEL_12D1_
+
     ld a, $02
     ld (_RAM_FFFF_), a
+
     ld a, $01
     call loadTextTilesWithColor
+
     ld a, $0F
     call _LABEL_12EB_
     call _LABEL_1317_
     call _LABEL_136D_
+
     ld hl, $0000
     ld (_RAM_C6BE_), hl
+
     ld hl, _DATA_9F05_
     ld de, $21E0
     call _LABEL_6D0_
+
     ld hl, _DATA_A020_
     ld de, $2400
     ld a, $0F
     call _LABEL_746_
+
     ld a, $03
     ld (_RAM_FFFF_), a
+
     ld hl, _DATA_C1A7_
     ld de, $0000
     call _LABEL_6D0_
+
     ld hl, _DATA_C435_
     ld de, $2800
     call _LABEL_6D0_
+
     ld hl, _DATA_C012_
     ld de, $3800
     call _LABEL_6D0_
+
     ld hl, _LABEL_3599_
-    ld (v_entities), hl
+    ld (var.entities), hl
+
     ld hl, $32F7
-    ld (_RAM_C2A0_), hl
+    ld (var.entities.14.handler), hl
+
     ld hl, $332D
-    ld (_RAM_C2C0_), hl
+    ld (var.entities.15.handler), hl
+
     ld hl, $3363
-    ld (_RAM_C2E0_), hl
+    ld (var.entities.16.handler), hl
+
     ld a, $02
     ld (_RAM_FFFF_), a
+
     ld hl, palette_DATA_8012_
     call loadColors
     ld hl, palette_DATA_9A15_
@@ -93,11 +109,11 @@ state.gameplay.update:
     ld a, $0F
     call _LABEL_746_
     ld hl, _LABEL_2FB7_
-    ld (_RAM_C120_), hl
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.2.handler), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3AC4_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld a, $18
     ld (var.state), a
     jp waitInterrupt_LABEL_18D_
@@ -154,9 +170,9 @@ _LABEL_1CBD_:
     ld de, $3800
     call _LABEL_6D0_
     ld hl, _LABEL_3599_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, $404D
-    ld (_RAM_C140_), hl
+    ld (var.entities.3.handler), hl
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, palette_DATA_8012_
@@ -214,11 +230,11 @@ _LABEL_1D64_:
     ld a, $0F
     call _LABEL_746_
     ld hl, _LABEL_2FB7_
-    ld (_RAM_C120_), hl
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.2.handler), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3AC4_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld a, $19
     ld (var.state), a
     jp waitInterrupt_LABEL_18D_
@@ -236,11 +252,11 @@ _LABEL_1DB8_:
     ld de, $2400
     call _LABEL_6D0_
     ld hl, _LABEL_2FB7_
-    ld (_RAM_C120_), hl
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.2.handler), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B1B_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld a, $19
     ld (var.state), a
     jp waitInterrupt_LABEL_18D_
@@ -346,9 +362,9 @@ _LABEL_1E79_:
     call _LABEL_6D0_
     call _LABEL_15F7_
     ld hl, _LABEL_3599_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_3B74_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, palette_DATA_8012_
@@ -405,12 +421,12 @@ _LABEL_1F15_:
     ld a, $0F
     call _LABEL_746_
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B41_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_4007_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1A
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
@@ -426,12 +442,12 @@ _LABEL_1F15_:
     ld a, $0F
     call _LABEL_746_
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_4023_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_3B5E_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1A
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
@@ -457,12 +473,12 @@ _LABEL_1FA9_:
     ld a, $0F
     call _LABEL_746_
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B33_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_4015_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1A
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
@@ -478,12 +494,12 @@ _LABEL_1FA9_:
     ld a, $0F
     call _LABEL_746_
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B4F_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_4032_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1A
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
@@ -523,9 +539,9 @@ _LABEL_2027_:
     ld a, $0F
     call _LABEL_746_
     ld hl, _LABEL_3599_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_3B74_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $86
     ld (_RAM_DD04_), a
     ld a, $03
@@ -579,13 +595,13 @@ _LABEL_209C_:
     call _LABEL_6D0_
     call _LABEL_15F7_
     ld hl, _LABEL_3599_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_3B74_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld hl, $40CF
-    ld (_RAM_C140_), hl
+    ld (var.entities.3.handler), hl
     ld hl, $4146
-    ld (_RAM_C160_), hl
+    ld (var.entities.4.handler), hl
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, palette_DATA_8012_
@@ -660,12 +676,12 @@ _LABEL_2168_:
     ld a, $0F
     call _LABEL_746_
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B41_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_4007_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1B
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
@@ -689,12 +705,12 @@ _LABEL_21D5_:
     ld a, $0F
     call _LABEL_746_
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B33_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_4015_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1B
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
@@ -719,24 +735,24 @@ _LABEL_221C_:
     jr z, ++
     jr nc, +
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B4F_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_4032_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1B
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
 
 +:
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B5E_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_4023_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1B
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
@@ -749,12 +765,12 @@ _LABEL_221C_:
     ld a, $0F
     call _LABEL_746_
     ld hl, $2FB7
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B65_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_4039_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld a, $1B
     ld (var.state), a
     jp waitInterrupt_LABEL_199_
@@ -796,13 +812,13 @@ _LABEL_22AE_:
     ld a, $0F
     call _LABEL_746_
     ld hl, _LABEL_3599_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, _LABEL_3B74_
-    ld (_RAM_C120_), hl
+    ld (var.entities.2.handler), hl
     ld hl, $40CF
-    ld (_RAM_C140_), hl
+    ld (var.entities.3.handler), hl
     ld hl, $4146
-    ld (_RAM_C160_), hl
+    ld (var.entities.4.handler), hl
     ld a, $88
     ld (_RAM_DD04_), a
     xor a
@@ -858,13 +874,13 @@ _LABEL_2346_:
     ld de, $3800
     call _LABEL_6D0_
     ld hl, _LABEL_3599_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, $32F7
-    ld (_RAM_C2A0_), hl
+    ld (var.entities.14.handler), hl
     ld hl, $332D
-    ld (_RAM_C2C0_), hl
+    ld (var.entities.15.handler), hl
     ld hl, $3363
-    ld (_RAM_C2E0_), hl
+    ld (var.entities.16.handler), hl
     xor a
     ld (_RAM_C69A_), a
     ld (_RAM_C6A6_), a
@@ -918,11 +934,11 @@ _LABEL_23F9_:
     ld a, $0F
     call _LABEL_746_
     ld hl, _LABEL_2FB7_
-    ld (_RAM_C120_), hl
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.2.handler), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3AC4_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld a, $1C
     ld (var.state), a
     jp waitInterrupt_LABEL_18D_
@@ -977,9 +993,9 @@ _LABEL_2469_:
     ld de, $3800
     call _LABEL_6D0_
     ld hl, _LABEL_3599_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld hl, $404D
-    ld (_RAM_C140_), hl
+    ld (var.entities.3.handler), hl
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, palette_DATA_8012_
@@ -1043,11 +1059,11 @@ _LABEL_2510_:
     ld a, $0F
     call _LABEL_746_
     ld hl, _LABEL_2FB7_
-    ld (_RAM_C120_), hl
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.2.handler), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3AC4_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld a, $1D
     ld (var.state), a
     jp waitInterrupt_LABEL_18D_
@@ -1065,11 +1081,11 @@ _LABEL_256A_:
     ld de, $2400
     call _LABEL_6D0_
     ld hl, _LABEL_2FB7_
-    ld (_RAM_C120_), hl
-    ld (_RAM_C140_), hl
-    ld (_RAM_C160_), hl
+    ld (var.entities.2.handler), hl
+    ld (var.entities.3.handler), hl
+    ld (var.entities.4.handler), hl
     ld hl, _LABEL_3B1B_
-    ld (v_entities), hl
+    ld (var.entities), hl
     ld a, $1D
     ld (var.state), a
     jp waitInterrupt_LABEL_18D_

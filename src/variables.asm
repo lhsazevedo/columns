@@ -77,71 +77,7 @@ _RAM_C0F8_ db
 .ende
 
 .enum $C100 export
-v_entities db
-.ende
-
-.enum $C10E export
-_RAM_C10E_ dw
-.ende
-
-.enum $C120 export
-_RAM_C120_ dw
-.ende
-
-.enum $C140 export
-_RAM_C140_ dw
-.ende
-
-.enum $C149 export
-_RAM_C149_ db
-.ende
-
-.enum $C160 export
-_RAM_C160_ dw
-.ende
-
-.enum $C169 export
-_RAM_C169_ db
-.ende
-
-.enum $C180 export
-_RAM_C180_ dw
-.ende
-
-.enum $C189 export
-_RAM_C189_ db
-.ende
-
-.enum $C1A0 export
-_RAM_C1A0_ dw
-.ende
-
-.enum $C1A9 export
-_RAM_C1A9_ db
-.ende
-
-.enum $C1C0 export
-_RAM_C1C0_ dw
-.ende
-
-.enum $C1C3 export
-_RAM_C1C3_ db
-.ende
-
-.enum $C1C9 export
-_RAM_C1C9_ db
-.ende
-
-.enum $C2A0 export
-_RAM_C2A0_ dw
-.ende
-
-.enum $C2C0 export
-_RAM_C2C0_ dw
-.ende
-
-.enum $C2E0 export
-_RAM_C2E0_ dw
+    var.entities INSTANCEOF Entity $10
 .ende
 
 .enum $C300 export
