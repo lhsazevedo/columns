@@ -6,8 +6,8 @@ updateEntities:
         push bc
         ld hl, + ; Overriding return address
         push hl
-        ld l, (ix+0)
-        ld h, (ix+1)
+        ld l, (ix + Entity.handler.low)
+        ld h, (ix + Entity.handler.high)
         ld a, l
         or h
         ret z

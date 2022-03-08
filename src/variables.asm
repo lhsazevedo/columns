@@ -149,7 +149,7 @@ _RAM_C695_ db
 _RAM_C696_ db
 _RAM_C697_ db
 _RAM_C698_ db
-_RAM_C699_ db
+level_RAM_C699_ db
 _RAM_C69A_ db
 _RAM_C69B_ db
 _RAM_C69C_ db
@@ -247,11 +247,11 @@ _RAM_D000_ db
 
 .enum $DD00 export
 _RAM_DD00_ db
-_RAM_DD01_ db
-_RAM_DD02_ db
+speed_RAM_DD01_ db
+speed_RAM_DD02_ db
 _RAM_DD03_ db
-_RAM_DD04_ db
-var.audio.request db
+var.audio.request_DD04 db
+var.audio.request_DD05 db
 .ende
 
 .enum $DD07 export

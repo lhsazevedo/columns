@@ -16,17 +16,19 @@ _LABEL_1BA6_:
     call loadTextTilesWithColor
 
     ld a, $0F
-    call _LABEL_12EB_
-    call _LABEL_1317_
+    call loadScoreTiles
+    call initGameplayVars_LABEL_1317_
     call _LABEL_136D_
 
     ld hl, $0000
     ld (_RAM_C6BE_), hl
 
+    ; Load FX tiles
     ld hl, _DATA_9F05_
     ld de, $21E0
     call _LABEL_6D0_
 
+    ; Load artistic "READY and "PAUSE" tiles
     ld hl, _DATA_A020_
     ld de, $2400
     ld a, $0F
@@ -35,28 +37,33 @@ _LABEL_1BA6_:
     ld a, $03
     ld (_RAM_FFFF_), a
 
+    ; Load UI NEXT/SCORE/BLOCK/LEVEL and LOGO tiles
     ld hl, _DATA_C1A7_
     ld de, $0000
     call _LABEL_6D0_
 
+    ; Load particle tiles
     ld hl, _DATA_C435_
     ld de, $2800
     call _LABEL_6D0_
 
+    ; Draw UI
     ld hl, _DATA_C012_
     ld de, $3800
     call _LABEL_6D0_
 
-    ld hl, _LABEL_3599_
+    ; TODO: Create entities
+    ld hl, entities.game_LABEL_3599_
     ld (var.entities), hl
 
-    ld hl, $32F7
+    ; Particles
+    ld hl, particle_LABEL_32F7_
     ld (var.entities.14.handler), hl
 
-    ld hl, $332D
+    ld hl, particle_LABEL_332D_
     ld (var.entities.15.handler), hl
 
-    ld hl, $3363
+    ld hl, particle_LABEL_3363_
     ld (var.entities.16.handler), hl
 
     ld a, $02
@@ -66,52 +73,69 @@ _LABEL_1BA6_:
     call loadColors
     ld hl, palette_DATA_9A15_
     call loadColors
+
     ld a, $03
     ld (_RAM_FFFF_), a
+
     ld hl, palette_DATA_C000_
     call fade.in
+
     ld a, $02
     ld (_RAM_C018_), a
+
     ei
-    ld a, $83
-    ld (_RAM_DD04_), a
+
+    ; Request song
+    ld a, SOUND_GAMEPLAY_SONG
+    ld (var.audio.request_DD04), a
+
     ld a, $0E
     ld (var.pallete.shouldUpdate), a
+
     ld hl, $003C
     ld (var.timer), hl
+
     ld a, $10
     ld (var.state), a
+
     jp waitInterrupt_LABEL_18D_
 
 ; 17th entry of Jump Table from 1BB (indexed by var.state)
 state.gameplay.update:
     ld a, (_RAM_C008_)
     or a
-    jr nz, ++
+    jr nz, @topOut
     ld a, (_RAM_C002_)
     or a
+
+    ; TODO: Doesn't seem to have a effect
     jr nz, +
-    call _LABEL_2E54_
-+:
+        call _LABEL_2E54_
+    +:
     call updateEntities
     call drawEntities_LABEL_25CC_
     jp waitInterrupt_LABEL_18D_
 
-++:
+@topOut:
     xor a
     ld (_RAM_C008_), a
+
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
+
     ld a, $02
     ld (_RAM_FFFF_), a
+
     ld hl, _DATA_9F8E_
     ld de, $2400
     ld a, $0F
     call _LABEL_746_
+
     ld hl, _LABEL_2FB7_
     ld (var.entities.2.handler), hl
     ld (var.entities.3.handler), hl
     ld (var.entities.4.handler), hl
+
     ld hl, _LABEL_3AC4_
     ld (var.entities), hl
     ld a, $18
@@ -147,8 +171,8 @@ _LABEL_1CBD_:
     ld a, $01
     call loadTextTilesWithColor
     ld a, $0F
-    call _LABEL_12EB_
-    call _LABEL_1317_
+    call loadScoreTiles
+    call initGameplayVars_LABEL_1317_
     call _LABEL_1399_
     ld hl, _DATA_83C2_
     ld de, $15C0
@@ -169,7 +193,7 @@ _LABEL_1CBD_:
     ld hl, _DATA_C463_
     ld de, $3800
     call _LABEL_6D0_
-    ld hl, _LABEL_3599_
+    ld hl, entities.game_LABEL_3599_
     ld (var.entities), hl
     ld hl, $404D
     ld (var.entities.3.handler), hl
@@ -187,9 +211,9 @@ _LABEL_1CBD_:
     ld (_RAM_C018_), a
     ei
     ld a, $88
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     xor a
-    ld (_RAM_C699_), a
+    ld (level_RAM_C699_), a
     ld (_RAM_C6A5_), a
     ld (_RAM_C6C3_), a
     ld (_RAM_C6C4_), a
@@ -222,7 +246,7 @@ _LABEL_1D64_:
     ld (_RAM_C6C2_), a
     ld (_RAM_C0A8_), a
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_9F8E_
@@ -245,7 +269,7 @@ _LABEL_1DB8_:
     ld (_RAM_C6C2_), a
     ld (_RAM_C0A8_), a
     ld a, $82
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A206_
@@ -336,7 +360,7 @@ _LABEL_1E79_:
     ld (_RAM_FFFF_), a
     ld a, $01
     call loadTextTilesWithColor
-    call _LABEL_1317_
+    call initGameplayVars_LABEL_1317_
     call _LABEL_136D_
     xor a
     ld (_RAM_C6CC_), a
@@ -361,7 +385,7 @@ _LABEL_1E79_:
     ld de, $3800
     call _LABEL_6D0_
     call _LABEL_15F7_
-    ld hl, _LABEL_3599_
+    ld hl, entities.game_LABEL_3599_
     ld (var.entities), hl
     ld hl, _LABEL_3B74_
     ld (var.entities.2.handler), hl
@@ -379,7 +403,7 @@ _LABEL_1E79_:
     ld (_RAM_C018_), a
     ei
     ld a, $86
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $03
     ld (var.palette._RAM_C022_), a
     ld hl, $003C
@@ -413,7 +437,7 @@ _LABEL_1F15_:
     jr nc, +
     call _LABEL_15F7_
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A0A2_
@@ -434,7 +458,7 @@ _LABEL_1F15_:
 +:
     call _LABEL_15F7_
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A164_
@@ -465,7 +489,7 @@ _LABEL_1FA9_:
     jr nc, +
     call _LABEL_15F7_
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A0A2_
@@ -486,7 +510,7 @@ _LABEL_1FA9_:
 +:
     call _LABEL_15F7_
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A164_
@@ -530,7 +554,7 @@ _LABEL_2027_:
     xor a
     ld (_RAM_C009_), a
     call clearEntitiesAlt_LABEL_5EA_
-    call _LABEL_1317_
+    call initGameplayVars_LABEL_1317_
     call _LABEL_136D_
     ld a, $02
     ld (_RAM_FFFF_), a
@@ -538,12 +562,12 @@ _LABEL_2027_:
     ld de, $2400
     ld a, $0F
     call _LABEL_746_
-    ld hl, _LABEL_3599_
+    ld hl, entities.game_LABEL_3599_
     ld (var.entities), hl
     ld hl, _LABEL_3B74_
     ld (var.entities.2.handler), hl
     ld a, $86
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $03
     ld (var.palette._RAM_C022_), a
     ld hl, $003C
@@ -567,8 +591,8 @@ _LABEL_209C_:
     ld a, $01
     call loadTextTilesWithColor
     ld a, $0F
-    call _LABEL_12EB_
-    call _LABEL_1317_
+    call loadScoreTiles
+    call initGameplayVars_LABEL_1317_
     call _LABEL_1399_
     call _LABEL_13F8_
     xor a
@@ -594,7 +618,7 @@ _LABEL_209C_:
     ld de, $3800
     call _LABEL_6D0_
     call _LABEL_15F7_
-    ld hl, _LABEL_3599_
+    ld hl, entities.game_LABEL_3599_
     ld (var.entities), hl
     ld hl, _LABEL_3B74_
     ld (var.entities.2.handler), hl
@@ -616,9 +640,9 @@ _LABEL_209C_:
     ld (_RAM_C018_), a
     ei
     ld a, $88
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     xor a
-    ld (_RAM_C699_), a
+    ld (level_RAM_C699_), a
     ld (_RAM_C6A5_), a
     ld (_RAM_C6C4_), a
     ld a, $60
@@ -668,7 +692,7 @@ _LABEL_2168_:
     jr nc, _LABEL_221C_
     call _LABEL_15F7_
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A0A2_
@@ -697,7 +721,7 @@ _LABEL_21D5_:
     jr nc, _LABEL_221C_
     call _LABEL_15F7_
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A0A2_
@@ -721,7 +745,7 @@ _LABEL_221C_:
     ld (_RAM_C6C2_), a
     call _LABEL_15F7_
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A164_
@@ -802,7 +826,7 @@ _LABEL_22AE_:
     ld (_RAM_C008_), a
     ld (_RAM_C009_), a
     call clearEntitiesAlt_LABEL_5EA_
-    call _LABEL_1317_
+    call initGameplayVars_LABEL_1317_
     call _LABEL_1399_
     call _LABEL_13F8_
     ld a, $02
@@ -811,7 +835,7 @@ _LABEL_22AE_:
     ld de, $2400
     ld a, $0F
     call _LABEL_746_
-    ld hl, _LABEL_3599_
+    ld hl, entities.game_LABEL_3599_
     ld (var.entities), hl
     ld hl, _LABEL_3B74_
     ld (var.entities.2.handler), hl
@@ -820,9 +844,9 @@ _LABEL_22AE_:
     ld hl, $4146
     ld (var.entities.4.handler), hl
     ld a, $88
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     xor a
-    ld (_RAM_C699_), a
+    ld (level_RAM_C699_), a
     ld (_RAM_C6A5_), a
     ld a, $03
     ld (var.palette._RAM_C022_), a
@@ -850,8 +874,8 @@ _LABEL_2346_:
     ld a, $01
     call loadTextTilesWithColor
     ld a, $0F
-    call _LABEL_12EB_
-    call _LABEL_1317_
+    call loadScoreTiles
+    call initGameplayVars_LABEL_1317_
     ld a, (optLevel_RAM_C6AC_)
     ld (_RAM_C6A5_), a
     call _LABEL_136D_
@@ -873,13 +897,13 @@ _LABEL_2346_:
     ld hl, _DATA_E2AE_
     ld de, $3800
     call _LABEL_6D0_
-    ld hl, _LABEL_3599_
+    ld hl, entities.game_LABEL_3599_
     ld (var.entities), hl
-    ld hl, $32F7
+    ld hl, particle_LABEL_32F7_
     ld (var.entities.14.handler), hl
-    ld hl, $332D
+    ld hl, particle_LABEL_332D_
     ld (var.entities.15.handler), hl
-    ld hl, $3363
+    ld hl, particle_LABEL_3363_
     ld (var.entities.16.handler), hl
     xor a
     ld (_RAM_C69A_), a
@@ -898,7 +922,7 @@ _LABEL_2346_:
     ld (_RAM_C018_), a
     ei
     ld a, $86
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $0E
     ld (var.pallete.shouldUpdate), a
     ld a, $70
@@ -926,7 +950,7 @@ _LABEL_23F9_:
     ld (_RAM_C008_), a
     ld (_RAM_C009_), a
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_9F8E_
@@ -971,7 +995,7 @@ _LABEL_2469_:
     ld (_RAM_FFFF_), a
     ld a, $01
     call loadTextTilesWithColor
-    call _LABEL_1317_
+    call initGameplayVars_LABEL_1317_
     call _LABEL_1399_
     ld hl, _DATA_83C2_
     ld de, $15C0
@@ -992,7 +1016,7 @@ _LABEL_2469_:
     ld hl, _DATA_E8E0_
     ld de, $3800
     call _LABEL_6D0_
-    ld hl, _LABEL_3599_
+    ld hl, entities.game_LABEL_3599_
     ld (var.entities), hl
     ld hl, $404D
     ld (var.entities.3.handler), hl
@@ -1010,9 +1034,9 @@ _LABEL_2469_:
     ld (_RAM_C018_), a
     ei
     ld a, $88
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     xor a
-    ld (_RAM_C699_), a
+    ld (level_RAM_C699_), a
     ld (_RAM_C6A5_), a
     ld (_RAM_C6C3_), a
     ld (_RAM_C6C4_), a
@@ -1051,7 +1075,7 @@ _LABEL_2510_:
     ld (_RAM_C6C2_), a
     ld (_RAM_C0A8_), a
     ld a, $85
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_9F8E_
@@ -1074,7 +1098,7 @@ _LABEL_256A_:
     ld (_RAM_C6C2_), a
     ld (_RAM_C0A8_), a
     ld a, $82
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A206_

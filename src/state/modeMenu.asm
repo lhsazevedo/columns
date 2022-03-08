@@ -6,17 +6,17 @@ state.modeMenu.init:
     ; Title
     ld a, $05
     ld de, _RAM_CD62_
-    call _LABEL_289D_
+    call drawTextNametable_LABEL_2885_
 
     ; Original
     ld a, $06
     ld de, _RAM_CDEA_
-    call _LABEL_289D_
+    call drawTextNametable_LABEL_2885_
 
     ; Flash
     ld a, $07
     ld de, _RAM_CE44_
-    call _LABEL_289D_
+    call drawTextNametable_LABEL_2885_
 
     ; TODO
     call waitInterrupt_LABEL_181_
@@ -25,10 +25,10 @@ state.modeMenu.init:
     ld de, $3B0A
     ld hl, nametable_RAM_CD00_
     ld bc, $092C
-    call copyAreaToNametable_LABEL_65D_
+    call drawNametableArea_LABEL_65D_
 
     ; Spawn arrow
-    ld hl, entities.optionsArrow.init
+    ld hl, entities.modeArrow.init
     ld (var.entities), hl
 
     ld a, $07 ; state.modeMenu.update
@@ -41,21 +41,23 @@ state.modeMenu.update:
     ld a, (var.input.player1.debounced)
     and JOY_FIREA | JOY_FIREB
 
-    jr nz, @actionPressed
+    jr nz, @endif
         call updateEntities
         call drawEntities_LABEL_25CC_
         jp waitInterrupt_LABEL_181_
-    @actionPressed:
-        ; TODO
-        ld a, (var.entities.1.byte0E)
-        ld d, a
+    @endif:
 
-        ld a, (mode_RAM_C005_)
-        and $06
-        add a, d
-        ld (mode_RAM_C005_), a
+    ; Save mode
+    ld a, (var.entities.1.byte0E)
+    ld d, a
 
-        ld a, $08
-        ld (var.state), a
+    ld a, (mode_RAM_C005_)
+    and $06
+    add a, d
+    ld (mode_RAM_C005_), a
 
-        jp waitInterrupt_LABEL_181_
+
+    ld a, $08
+    ld (var.state), a
+
+    jp waitInterrupt_LABEL_181_

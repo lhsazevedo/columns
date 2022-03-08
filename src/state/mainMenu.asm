@@ -57,30 +57,30 @@ state.mainMenu.init:
     ; Draw "Press Start Button"
     xor a
     ld de, $3B4E
-    call _LABEL_2885_
+    call drawText_LABEL_2885_
 
     ; Draw 1st menu option
     ; "1 PLAYER"
     ld a, $01
     ld de, $3BD8
-    call _LABEL_2885_
+    call drawText_LABEL_2885_
 
     ; Draw 2nd menu option
     ; "2 PLAYER"
     ld a, $03
     ld de, $3C58
-    call _LABEL_2885_
+    call drawText_LABEL_2885_
 
     ; Draw 3rd menu option
     ; "VERSUS"
     ld a, $02
     ld de, $3CDA
-    call _LABEL_2885_
+    call drawText_LABEL_2885_
 
     ; Draw copyright text
     ld a, $04
     ld de, $3DE6
-    call _LABEL_2885_
+    call drawText_LABEL_2885_
 
     ; Load colors
     ld hl, palette_DATA_8012_
@@ -108,7 +108,7 @@ state.mainMenu.init:
 
     ; Request main menu song
     ld a, SOUND_MAIN_MENU_SONG
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
 
     ; Set main menu timer
     ld hl, $0258

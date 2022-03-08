@@ -16,8 +16,8 @@ entities.arrow.init:
     ld (ix+9), $50
 
     ; Set updater
-    ld (ix+0), <entities.arrow.update
-    ld (ix+1), >entities.arrow.update
+    ld (ix + Entity.handler.low), <entities.arrow.update
+    ld (ix + Entity.handler.high), >entities.arrow.update
 
     ret
 
@@ -40,7 +40,7 @@ entities.arrow.update:
     ld (ix+6), a
     ret
 
-entities.optionsArrow.init:
+entities.modeArrow.init:
     ld (ix+2), $01
     ld (ix+3), $01
 
@@ -57,11 +57,11 @@ entities.optionsArrow.init:
     ld (ix+9), $50
 
     ; Set updater
-    ld (ix+0), <entities.optionsArrow.update
-    ld (ix+1), >entities.optionsArrow.update
+    ld (ix + Entity.handler.low), <entities.modeArrow.update
+    ld (ix + Entity.handler.high), >entities.modeArrow.update
     ret
 
-entities.optionsArrow.update:
+entities.modeArrow.update:
     ld a, (var.input.player1.debounced)
     and JOY_UP | JOY_DOWN
     ret z
@@ -79,15 +79,15 @@ entities.optionsArrow.update:
     ld (ix+6), a
     ret
 
-_LABEL_3030_:
+ entitiesOptionsArrow.init:
     ld (ix+2), $01
     ld (ix+3), $01
     ld (ix+14), $03
     ld (ix+15), $04
     ld (ix+6), $A0
     ld (ix+9), $30
-    ld (ix+0), <_LABEL_3064_
-    ld (ix+1), >_LABEL_3064_
+    ld (ix + Entity.handler.low), <_LABEL_3064_
+    ld (ix + Entity.handler.high), >_LABEL_3064_
     call _LABEL_3444_
     call _LABEL_3459_
     call _LABEL_349D_
@@ -120,7 +120,7 @@ _LABEL_3064_:
     and $0C
     ret z
     ld a, $95
-    ld (var.audio.request), a
+    ld (var.audio.request_DD05), a
     ld a, (ix+14)
     or a
     jr z, _LABEL_30A1_
@@ -216,8 +216,8 @@ _LABEL_312A_:
     ld (ix+15), $05
     ld (ix+6), $A0
     ld (ix+9), $18
-    ld (ix+0), <_LABEL_3166_
-    ld (ix+1), >_LABEL_3166_
+    ld (ix + Entity.handler.low), <_LABEL_3166_
+    ld (ix + Entity.handler.high), >_LABEL_3166_
     call _LABEL_3444_
     call _LABEL_3459_
     call _LABEL_349D_
@@ -254,7 +254,7 @@ _LABEL_3166_:
     and $0C
     ret z
     ld a, $95
-    ld (var.audio.request), a ; var.audio.request = $DD05
+    ld (var.audio.request_DD05), a ; var.audio.request_DD05 = $DD05
     ld a, (ix+14)
     or a
     jp z, _LABEL_30A1_
@@ -317,8 +317,8 @@ _LABEL_31F5_:
     ld (ix+6), $A0
     ld (ix+9), $E0
     ; TODO: Entity label 3229
-    ld (ix+0), $29
-    ld (ix+1), $32
+    ld (ix + Entity.handler.low), $29
+    ld (ix + Entity.handler.high), $32
     call _LABEL_3514_
     call _LABEL_351F_
     call _LABEL_3559_
@@ -342,12 +342,12 @@ _LABEL_31F5_:
 .db $B0 $C6 $3A $11 $C0 $CB $57 $28 $09 $35 $F2 $88 $35 $36 $07 $C3
 .db $88 $35 $34 $7E $FE $08 $DA $88 $35 $36 $00 $C3 $88 $35
 
-_LABEL_32F7_:
+particle_LABEL_32F7_:
     ld (ix+2), $01
     ld (ix+3), $02
     ; TODO: Entity label 3307
-    ld (ix+0), $07
-    ld (ix+1), $33
+    ld (ix + Entity.handler.low), $07
+    ld (ix + Entity.handler.high), $33
     ld a, (_RAM_C002_)
     or a
     ret nz
@@ -365,12 +365,12 @@ _LABEL_32F7_:
     ld (ix+9), h
     ret
 
-_LABEL_332D_:
+particle_LABEL_332D_:
     ld (ix+2), $01
     ld (ix+3), $03
     ; TODO: Entity label 333D
-    ld (ix+0), $3D
-    ld (ix+1), $33
+    ld (ix + Entity.handler.low), $3D
+    ld (ix + Entity.handler.high), $33
     ld a, (_RAM_C002_)
     or a
     ret nz
@@ -388,12 +388,12 @@ _LABEL_332D_:
     ld (ix+9), h
     ret
 
-_LABEL_3363_:
+particle_LABEL_3363_:
     ld (ix+2), $01
     ld (ix+3), $04
     ; TODO: Entity label 3373
-    ld (ix+0), $73
-    ld (ix+1), $33
+    ld (ix + Entity.handler.low), $73
+    ld (ix + Entity.handler.high), $33
     ld a, (_RAM_C002_)
     or a
     ret nz
@@ -435,8 +435,8 @@ _LABEL_33B5_:
     ld (ix+6), $3F
     ld (ix+2), $01
     ; TODO: Entity label 33CE
-    ld (ix+0), $CE
-    ld (ix+1), $33
+    ld (ix + Entity.handler.low), $CE
+    ld (ix + Entity.handler.high), $33
     ret
 
 _LABEL_33CE_:
@@ -451,8 +451,8 @@ _LABEL_33CE_:
     ret nz
     ld (ix+14), $28
     ; TODO: Entity label 33EE
-    ld (ix+0), $EE
-    ld (ix+1), $33
+    ld (ix + Entity.handler.low), $EE
+    ld (ix + Entity.handler.high), $33
     ret
 
 _LABEL_33EE_:
@@ -460,8 +460,8 @@ _LABEL_33EE_:
     ret nz
     ld (ix+14), $04
     ; TODO: Entity label 33FF
-    ld (ix+0), $FF
-    ld (ix+1), $33
+    ld (ix + Entity.handler.low), $FF
+    ld (ix + Entity.handler.high), $33
     ret
 
 _LABEL_33FF_:
@@ -474,8 +474,8 @@ _LABEL_33FF_:
     dec (ix+14)
     ret nz
     ; TODO: Entity label 2FB7
-    ld (ix+0), $B7
-    ld (ix+1), $2F
+    ld (ix + Entity.handler.low), $B7
+    ld (ix + Entity.handler.high), $2F
     ret
 
 _LABEL_341A_:
@@ -485,7 +485,7 @@ _LABEL_341A_:
     jr nc, @endif3
         ; Request arrow sound
         ld a, SOUND_ARROW
-        ld (var.audio.request), a
+        ld (var.audio.request_DD05), a
 
         ; Update option index, handling loop
         ld a, (ix+14)
@@ -501,7 +501,7 @@ _LABEL_341A_:
     @endif3:
         ; Request arrow sound
         ld a, SOUND_ARROW
-        ld (var.audio.request), a
+        ld (var.audio.request_DD05), a
 
         ; Update option index, handling loop
         ld a, (ix+14)
@@ -523,7 +523,7 @@ _LABEL_3444_:
 +:
     ld a, (optDifficulty_RAM_C6A8_)
     add a, $0D
-    jp _LABEL_2885_
+    jp drawText_LABEL_2885_
 
 _LABEL_3459_:
     ld de, $3C26
@@ -644,7 +644,7 @@ _LABEL_3514_:
     ld de, $3BAC
     ld a, (_RAM_C6AD_)
     add a, $0D
-    jp _LABEL_2885_
+    jp drawText_LABEL_2885_
 
 _LABEL_351F_:
     ld de, $3BEC
@@ -719,54 +719,73 @@ _LABEL_3588_:
     out (Port_VDPData), a
     ret
 
-_LABEL_3599_:
+entities.game_LABEL_3599_:
     ld (ix+22), $00
     ld (ix+23), $00
     ld (ix+24), $00
+
+    ; TODO: No effect observed
     call _LABEL_448C_
-    ld hl, (_RAM_C699_)
+    
+    ld hl, (level_RAM_C699_)
     ld h, $00
-    ld de, _DATA_362C_
+    ld de, songSpeeds
     add hl, de
     ld a, (hl)
-    ld (_RAM_DD01_), a
-    ld (_RAM_DD02_), a
+    ld (speed_RAM_DD01_), a
+    ld (speed_RAM_DD02_), a
+
     xor a
     ld (_RAM_DD08_), a
+
     ld (ix+2), $01
     ld (ix+3), $14
     ld (ix+6), $20
     ld (ix+25), $3C
     ld (ix+31), $00
-    ; TODO: Entity label 35E7
-    ld (ix+0), $E7
-    ld (ix+1), $35
+
+    ld (ix + Entity.handler.low), <entities.game_LABEL_35E7_
+    ld (ix + Entity.handler.high), >entities.game_LABEL_35E7_
+
+    ; TODO
     ld a, (mode_RAM_C005_)
     bit 1, a
     ld a, $70
     jr z, +
-    ld a, $20
-+:
+        ld a, $20
+    +:
+
     ld (ix+9), a
     ret
 
-_LABEL_35E7_:
+entities.game_LABEL_35E7_:
+    ; READY timer
     dec (ix+25)
     ret p
+
     ld (ix+2), $00
+
+    ; Related to the first block
     call _LABEL_43D3_
-    ld (ix+0), <initFallingBlock_LABEL_3636_
-    ld (ix+1), >initFallingBlock_LABEL_3636_
+
+    ld (ix + Entity.handler.low), <entities.game_LABEL_3636_
+    ld (ix + Entity.handler.high), >entities.game_LABEL_3636_
+
+    ; TODO: Two players?
     ld a, (mode_RAM_C005_)
     bit 0, a
     ret z
+
     ld a, $01
     ld (_RAM_C6C2_), a
+
     ld a, (mode_RAM_C005_)
     bit 1, a
     ret nz
+
     ld a, $01
     ld (_RAM_C0A8_), a
+
     ret
 
 _LABEL_3611_:
@@ -782,11 +801,19 @@ _LABEL_3611_:
     ld (ix+2), $01
     ret
 
-; Data from 362C to 3635 (10 bytes)
-_DATA_362C_:
-.db $04 $05 $06 $07 $09 $0C $10 $20 $60 $FF
+songSpeeds:
+.db $04
+.db $05
+.db $06
+.db $07
+.db $09
+.db $0C
+.db $10
+.db $20
+.db $60
+.db $FF
 
-initFallingBlock_LABEL_3636_:
+entities.game_LABEL_3636_:
     ld hl, $C41B
     bit 0, (ix+31)
     jp nz, _LABEL_3C04_
@@ -811,13 +838,13 @@ initFallingBlock_LABEL_3636_:
     ex de, hl
     djnz -
 +:
-    ld a, (_RAM_C699_)
+    ld a, (level_RAM_C699_)
     cp b
     jr nc, ++
     ld a, b
-    ld (_RAM_C699_), a
+    ld (level_RAM_C699_), a
     ld a, $93
-    ld (var.audio.request), a
+    ld (var.audio.request_DD05), a
     ld a, (mode_RAM_C005_)
     bit 1, a
     jr nz, +
@@ -846,17 +873,17 @@ initFallingBlock_LABEL_3636_:
     ld a, (hl)
     or a
     jp nz, _LABEL_36F0_
-    ld a, (_RAM_C699_)
+    ld a, (level_RAM_C699_)
     call _LABEL_4514_
-    ld (ix+0), <updateFallingBlock_LABEL_36F9_
-    ld (ix+1), >updateFallingBlock_LABEL_36F9_
-    ld hl, (_RAM_C699_)
+    ld (ix + Entity.handler.low), <updateFallingBlock_LABEL_36F9_
+    ld (ix + Entity.handler.high), >updateFallingBlock_LABEL_36F9_
+    ld hl, (level_RAM_C699_)
     ld h, $00
-    ld de, _DATA_362C_
+    ld de, songSpeeds
     add hl, de
     ld a, (hl)
-    ld (_RAM_DD01_), a
-    ld (_RAM_DD02_), a
+    ld (speed_RAM_DD01_), a
+    ld (speed_RAM_DD02_), a
     ld a, (mode_RAM_C005_)
     or a
     jp z, _LABEL_4464_
@@ -914,7 +941,7 @@ updateFallingBlock_LABEL_36F9_:
     dec (ix+25)
     jp p, ++++
 +++:
-    ld a, (_RAM_C699_)
+    ld a, (level_RAM_C699_)
     call _LABEL_4514_
     ld e, (ix+16)
     ld d, (ix+17)
@@ -933,7 +960,7 @@ updateFallingBlock_LABEL_36F9_:
     or a
     jr z, ++++
     ld a, $92
-    ld (var.audio.request), a
+    ld (var.audio.request_DD05), a
 ++++:
     ld a, (var.input.player1.debounced)
     and $30
@@ -952,16 +979,16 @@ updateFallingBlock_LABEL_36F9_:
     call _LABEL_4464_
     ld (ix+25), $14
     ; TODO: Entity label 37A0
-    ld (ix+0), $A0
-    ld (ix+1), $37
+    ld (ix + Entity.handler.low), $A0
+    ld (ix + Entity.handler.high), $37
     ret
 
 _LABEL_378F_:
     ld (ix+14), $00
     ld (ix+25), $10
     ; TODO: Entity label 3A3C
-    ld (ix+0), $3C
-    ld (ix+1), $3A
+    ld (ix + Entity.handler.low), $3C
+    ld (ix + Entity.handler.high), $3A
     ret
 
 _LABEL_37A0_:
@@ -999,8 +1026,8 @@ _LABEL_37A0_:
     or a
     ret nz
     ld (ix+25), $00
-    ld (ix+0), <updateFallingBlock_LABEL_36F9_
-    ld (ix+1), >updateFallingBlock_LABEL_36F9_
+    ld (ix + Entity.handler.low), <updateFallingBlock_LABEL_36F9_
+    ld (ix + Entity.handler.high), >updateFallingBlock_LABEL_36F9_
     ret
 
 _LABEL_37F7_:
@@ -1012,8 +1039,8 @@ _LABEL_37F7_:
     call ldi128
     call _LABEL_123D_
     ; TODO: Entity label 3816
-    ld (ix+0), $16
-    ld (ix+1), $38
+    ld (ix + Entity.handler.low), $16
+    ld (ix + Entity.handler.high), $38
     ret
 
 _LABEL_3816_:
@@ -1024,8 +1051,8 @@ _LABEL_3816_:
     ld a, (_RAM_C6BB_)
     ld (ix+28), a
     ; TODO: Entity label 3831
-    ld (ix+0), $31
-    ld (ix+1), $38
+    ld (ix + Entity.handler.low), $31
+    ld (ix + Entity.handler.high), $38
     ret
 
 _LABEL_3831_:
@@ -1037,8 +1064,8 @@ _LABEL_3831_:
     add a, (ix+28)
     ld (ix+28), a
     ; TODO: Entity label 384F
-    ld (ix+0), $4F
-    ld (ix+1), $38
+    ld (ix + Entity.handler.low), $4F
+    ld (ix + Entity.handler.high), $38
     ret
 
 _LABEL_384F_:
@@ -1050,8 +1077,8 @@ _LABEL_384F_:
     add a, (ix+28)
     ld (ix+28), a
     ; TODO: Entity label 386D
-    ld (ix+0), $6D
-    ld (ix+1), $38
+    ld (ix + Entity.handler.low), $6D
+    ld (ix + Entity.handler.high), $38
     ret
 
 _LABEL_386D_:
@@ -1063,8 +1090,8 @@ _LABEL_386D_:
     add a, (ix+28)
     ld (ix+28), a
     ; TODO: Entity label 388B
-    ld (ix+0), $8B
-    ld (ix+1), $38
+    ld (ix + Entity.handler.low), $8B
+    ld (ix + Entity.handler.high), $38
     ret
 
 _LABEL_388B_:
@@ -1085,8 +1112,8 @@ _LABEL_388B_:
     call z, _LABEL_452A_
     ld (ix+25), $2F
     ; TODO: Entity label 392B
-    ld (ix+0), $2B
-    ld (ix+1), $39
+    ld (ix + Entity.handler.low), $2B
+    ld (ix + Entity.handler.high), $39
     ret
 
 +:
@@ -1095,8 +1122,8 @@ _LABEL_388B_:
     call nz, _LABEL_2B3E_
     ld (ix+25), $05
     ; TODO: Entity label 38EF
-    ld (ix+0), $EF
-    ld (ix+1), $38
+    ld (ix + Entity.handler.low), $EF
+    ld (ix + Entity.handler.high), $38
     ret
 
 _LABEL_38D3_:
@@ -1106,15 +1133,15 @@ _LABEL_38D3_:
     ld (ix+29), $00
     ld (ix+25), $2F
     ; TODO: Entity label 392B
-    ld (ix+0), $2B
-    ld (ix+1), $39
+    ld (ix + Entity.handler.low), $2B
+    ld (ix + Entity.handler.high), $39
     ret
 
 _LABEL_38EF_:
     dec (ix+25)
     ret p
-    ld (ix+0), <initFallingBlock_LABEL_3636_
-    ld (ix+1), >initFallingBlock_LABEL_3636_
+    ld (ix + Entity.handler.low), <entities.game_LABEL_3636_
+    ld (ix + Entity.handler.high), >entities.game_LABEL_3636_
     ld a, (mode_RAM_C005_)
     and $04
     ret z
@@ -1158,8 +1185,8 @@ _LABEL_392B_:
     dec (ix+25)
     ret p
     ; TODO: Entity label 3954
-    ld (ix+0), $54
-    ld (ix+1), $39
+    ld (ix + Entity.handler.low), $54
+    ld (ix + Entity.handler.high), $39
     ret
 
 _LABEL_3954_:
@@ -1195,11 +1222,11 @@ _LABEL_3954_:
     add a, $F0
     ld (_RAM_DD09_), a
     ld a, $90
-    ld (var.audio.request), a
+    ld (var.audio.request_DD05), a
     ld (ix+25), $0B
     ; TODO: Entity label 39A6
-    ld (ix+0), $A6
-    ld (ix+1), $39
+    ld (ix + Entity.handler.low), $A6
+    ld (ix + Entity.handler.high), $39
     ret
 
 _LABEL_39A6_:
@@ -1232,8 +1259,8 @@ _DATA_39D0_:
 +:
     ld (ix+25), $10
     ; TODO: Entity label 39E9
-    ld (ix+0), $E9
-    ld (ix+1), $39
+    ld (ix + Entity.handler.low), $E9
+    ld (ix + Entity.handler.high), $39
     ret
 
 _LABEL_39E9_:
@@ -1270,8 +1297,8 @@ _LABEL_39E9_:
     call _LABEL_2AF6_
     inc (ix+27)
     ; TODO: Entity label 37FF
-    ld (ix+0), $FF
-    ld (ix+1), $37
+    ld (ix + Entity.handler.low), $FF
+    ld (ix + Entity.handler.high), $37
     ret
 
 ; Data from 3A3C to 3AC3 (136 bytes)
@@ -1302,8 +1329,8 @@ _LABEL_3ADA_:
     ld (ix+16), $A1
     ld (ix+17), $C4
     ; TODO: Entity label 3AF7
-    ld (ix+0), $F7
-    ld (ix+1), $3A
+    ld (ix + Entity.handler.low), $F7
+    ld (ix + Entity.handler.high), $3A
     ret
 
 ; Data from 3AF7 to 3B1A (36 bytes)
@@ -1365,8 +1392,8 @@ _LABEL_3B74_:
     ld (ix+25), $3C
     ld (ix+31), $01
     ; TODO: Entity label 3BAE
-    ld (ix+0), $AE
-    ld (ix+1), $3B
+    ld (ix + Entity.handler.low), $AE
+    ld (ix + Entity.handler.high), $3B
     ld a, (mode_RAM_C005_)
     bit 1, a
     ld a, $70
@@ -1413,7 +1440,7 @@ _LABEL_3C04_:
     ld a, b
     ld (_RAM_C6A5_), a
     ld a, $93
-    ld (var.audio.request), a
+    ld (var.audio.request_DD05), a
     ld a, (mode_RAM_C005_)
     bit 1, a
     jr nz, +
@@ -1445,8 +1472,8 @@ _LABEL_3C04_:
     ld a, (_RAM_C6A5_)
     call _LABEL_4514_
     ; TODO: Entity label 3C9E
-    ld (ix+0), $9E
-    ld (ix+1), $3C
+    ld (ix + Entity.handler.low), $9E
+    ld (ix + Entity.handler.high), $3C
     jp _LABEL_4464_
 
 +:
@@ -1521,8 +1548,8 @@ _LABEL_3FAE_:
     ld (ix+16), $E9
     ld (ix+17), $C5
     ; TODO: Entity label 3FCB
-    ld (ix+0), $CB
-    ld (ix+1), $3F
+    ld (ix + Entity.handler.low), $CB
+    ld (ix + Entity.handler.high), $3F
     ret
 
 ; Data from 3FCB to 4006 (60 bytes)
@@ -1657,7 +1684,7 @@ _LABEL_4384_:
     ld (ix+21), d
 ++:
     ld a, $95
-    ld (var.audio.request), a
+    ld (var.audio.request_DD05), a
     ret
 
 _LABEL_43B4_:

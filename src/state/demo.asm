@@ -15,7 +15,7 @@ state.demo.init:
     ld de, _RAM_C460_
     call ldi72
     xor a
-    ld (_RAM_C699_), a
+    ld (level_RAM_C699_), a
     ld (_RAM_C6A5_), a
     ld a, $02
     ld (var.pallete.shouldUpdate), a
@@ -47,7 +47,7 @@ _LABEL_17AD_:
     ld de, _RAM_C470_
     call ldi56
     xor a
-    ld (_RAM_C699_), a
+    ld (level_RAM_C699_), a
     ld (_RAM_C6A5_), a
     ld a, $02
     ld (var.pallete.shouldUpdate), a
@@ -121,7 +121,7 @@ _LABEL_1864_:
     ld (_RAM_C0A8_), a
     ld (_RAM_C006_), a
     ld a, $82
-    ld (_RAM_DD04_), a
+    ld (var.audio.request_DD04), a
     ld a, $02
     ld (_RAM_FFFF_), a
     ld hl, _DATA_A206_

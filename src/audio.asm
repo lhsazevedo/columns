@@ -36,13 +36,13 @@ audio_LABEL_45CA_:
     ret
 
 _LABEL_4630_:
-    ld hl, _RAM_DD01_
+    ld hl, speed_RAM_DD01_
     ld a, (hl)
     or a
     ret z
     dec (hl)
     ret nz
-    ld a, (_RAM_DD02_)
+    ld a, (speed_RAM_DD02_)
     ld (hl), a
     ld hl, _RAM_DD4A_
     ld de, $0030
@@ -54,7 +54,7 @@ _LABEL_4630_:
     ret
 
 _LABEL_4649_:
-    ld de, _RAM_DD04_
+    ld de, var.audio.request_DD04
     call +
     call +
 +:
@@ -152,8 +152,8 @@ _DATA_46F4_:
     ld c, a
     ex af, af'
     call _LABEL_49C0_
-    ld (_RAM_DD01_), a
-    ld (_RAM_DD02_), a
+    ld (speed_RAM_DD01_), a
+    ld (speed_RAM_DD02_), a
     ex af, af'
     ld hl, $4CCA
     call _LABEL_49B6_
